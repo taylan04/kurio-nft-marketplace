@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-label="Placeholder VIOLET">
+<rect width="600" height="600" rx="32" fill="#f0ead0"/>
+<circle cx="300" cy="250" r="150" fill="#b9aca1"/>
+<ellipse cx="235" cy="238" rx="22" ry="28" fill="#111"/><ellipse cx="365" cy="238" rx="22" ry="28" fill="#111"/>
+<ellipse cx="300" cy="320" rx="95" ry="62" fill="#c88b61"/><path d="M155 600c0-150 65-225 145-225s145 75 145 225" fill="#67528b"/>
+<circle cx="235" cy="238" r="46" fill="none" stroke="#e6c17b" stroke-width="14"/><circle cx="365" cy="238" r="46" fill="none" stroke="#e6c17b" stroke-width="14"/><path d="M281 238h38" stroke="#e6c17b" stroke-width="12"/>
+<text x="300" y="555" text-anchor="middle" font-family="monospace" font-size="34" font-weight="700" fill="#140d0a">VIOLET</text>
+</svg>

@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+  color: #f5f1eb;
+  background: #140d0a;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+* { box-sizing: border-box; }
+html { background: #140d0a; color-scheme: dark; }
+body { margin: 0; min-width: 320px; min-height: 100vh; background: #140d0a; }
+button, input, textarea, select { font: inherit; }
+a { color: inherit; text-decoration: none; }
+::selection { background: #d28a4c; color: #140d0a; }
+
+:focus-visible {
+  outline: 2px solid #d28a4c;
+  outline-offset: 2px;
+}
+
+/* esconde a barra de rolagem em carrosséis/abas horizontais sem perder o scroll */
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+  }
+}
