@@ -1,119 +1,404 @@
 # Kurio — NFT Marketplace
 
-Projeto do desafio de Frontend em **React, TypeScript, TanStack Router, TanStack Query, Axios, Tailwind, shadcn/ui, MSW e Socket.IO**, com testes Playwright e configuração Lighthouse CI.
+Projeto desenvolvido como parte de um desafio técnico de Frontend. A aplicação simula um marketplace de NFTs, permitindo explorar coleções, visualizar detalhes dos itens, adicionar favoritos, gerenciar um carrinho e realizar compras simuladas.
 
-> É uma demonstração: a API, os pagamentos, as carteiras e as transações são **simulados**. Não usa blockchain, chaves reais nem gateway de pagamento.
+O projeto foi desenvolvido com React e TypeScript, utilizando ferramentas para gerenciamento de rotas, consumo de APIs, estado assíncrono, testes e comunicação em tempo real.
 
-## Começando
+**Aplicação publicada:** https://kurio-nft-marketplace-theta.vercel.app/
 
-Requisitos: Node.js 20+ e npm.
+> **Observação:** este projeto é uma demonstração. As APIs, carteiras, pagamentos e transações são simulados. Não existe integração com blockchain, carteiras reais ou gateways de pagamento.
+
+## 1. Tecnologias utilizadas
+
+**Frontend**
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- shadcn/ui
+
+**Navegação e gerenciamento de dados**
+- TanStack Router
+- TanStack Query
+- Axios
+
+**APIs e simulações**
+- Mock Service Worker (MSW)
+- Socket.IO Client
+- REST APIs simuladas
+
+**Testes e qualidade**
+- Playwright
+- Lighthouse CI
+- TypeScript
+- ESLint
+
+## 2. Como executar o projeto
+
+Para executar a aplicação localmente, é necessário ter instalado:
+
+- Node.js 20 ou superior
+- npm
+
+Primeiro, instale as dependências:
 
 ```bash
 npm ci
-cp .env.example .env            # no Windows PowerShell: Copy-Item .env.example .env
+```
+
+Depois, crie o arquivo `.env` a partir do `.env.example`.
+
+No Windows (PowerShell):
+
+```powershell
+Copy-Item .env.example .env
+```
+
+No Linux ou macOS:
+
+```bash
+cp .env.example .env
+```
+
+Por fim, inicie o servidor de desenvolvimento:
+
+```bash
 npm run dev
 ```
 
-Abra o endereço exibido pelo Vite, geralmente `http://localhost:5173`.
+A aplicação estará disponível no endereço informado pelo Vite, geralmente:
 
-### Build e qualidade
+http://localhost:5173
+
+### Build de produção
+
+Para gerar a versão de produção:
 
 ```bash
 npm run build
+```
+
+Para visualizar o resultado do build localmente:
+
+```bash
 npm run preview
+```
+
+### Verificação de código
+
+Para verificar os tipos do TypeScript:
+
+```bash
 npm run typecheck
+```
+
+Para executar o ESLint:
+
+```bash
 npm run lint
+```
+
+## 3. Variáveis de ambiente
+
+O projeto utiliza variáveis de ambiente para configurar as APIs simuladas e as ferramentas de demonstração.
+
+| Variável | Descrição |
+|---|---|
+| `VITE_ENABLE_MSW=true` | Ativa as APIs simuladas pelo MSW e a integração de Socket.IO |
+| `VITE_SHOW_MOCK_TOOLS=true` | Exibe o painel de ferramentas para simular diferentes cenários |
+| `VITE_API_BASE_URL=/api` | Define a URL base utilizada pelo Axios |
+| `VITE_SOCKET_URL=wss://kurio.mock` | Define o endereço simulado utilizado pelo Socket.IO Client |
+
+As integrações foram desenvolvidas para funcionar sem depender de um backend real.
+
+## 4. Contas de demonstração
+
+O projeto possui duas contas fictícias para testar autenticação e separação de dados entre usuários.
+
+| Usuário | E-mail | Senha |
+|---|---|---|
+| Colecionador principal | `collector@kurio.test` | `12345678` |
+| Segundo colecionador | `second@kurio.test` | `12345678` |
+
+As senhas são verificadas por hash no banco simulado local. A sessão utiliza um token fictício e pode ser recuperada após atualizar a página.
+
+Essas credenciais são exclusivas para demonstração e não devem ser utilizadas em aplicações reais.
+
+## 5. Funcionalidades implementadas
+
+### Catálogo de NFTs
+
+A página inicial permite explorar os NFTs disponíveis, com funcionalidades de:
+
+- Busca por NFTs
+- Filtros combináveis
+- Ordenação dos resultados
+- Paginação
+- Navegação para os detalhes de um NFT
+- Adição e remoção de favoritos
+
+Os filtros, a ordenação, a busca e a paginação são armazenados nos parâmetros da URL. Dessa forma, o estado da navegação pode ser recuperado após atualizar a página ou utilizar o histórico do navegador.
+
+### Detalhes do NFT
+
+Na página de detalhes, é possível visualizar as informações do NFT, selecionar a edição, alterar a quantidade desejada e adicionar o item ao carrinho.
+
+A aplicação também verifica a disponibilidade e os limites de quantidade.
+
+### Carrinho de compras
+
+O carrinho permite:
+
+- Adicionar e remover NFTs
+- Alterar quantidades
+- Aplicar e remover cupons
+- Visualizar subtotal, descontos, taxas e valor total
+- Manter os itens após atualizar a página
+
+O carrinho também preserva os itens adicionados como visitante quando o usuário realiza o login.
+
+**Cupons disponíveis para teste:**
+
+- `KURIO10`: cupom válido.
+- `EXPIRED`: simula um cupom expirado.
+- Outros códigos: retornam erro de cupom inválido.
+
+### Checkout e pedidos
+
+O processo de compra é simulado, mas segue um fluxo de validação.
+
+Durante o checkout, o usuário pode revisar seus dados, selecionar carteira e rede e conferir os valores antes de confirmar o pedido.
+
+A aplicação também contempla:
+
+- Validação dos dados do colecionador
+- Revalidação da cotação antes da compra
+- Simulação de pagamentos confirmados e recusados
+- Recuperação de pedidos após falhas de conexão
+- Prevenção de pedidos duplicados por meio de idempotência
+- Preservação dos valores originais no recibo
+
+As transações não utilizam criptomoedas reais.
+
+### Autenticação e perfil
+
+O usuário pode criar uma conta, realizar login, encerrar a sessão e atualizar os dados do perfil.
+
+Também foram implementadas funcionalidades para alteração de senha e gerenciamento de carteiras.
+
+Os dados privados são separados por usuário, evitando que informações de uma sessão anterior apareçam após o logout ou a troca de conta.
+
+### Atualizações em tempo real
+
+A aplicação utiliza Socket.IO Client junto ao ambiente de mocks para simular eventos em tempo real.
+
+Os principais eventos são:
+
+- `nft.updated`: informa alterações de preço ou disponibilidade de um NFT.
+- `order.updated`: informa mudanças no estado de um pedido.
+
+Esses eventos permitem atualizar as informações da interface e verificar alterações que acontecem durante uma compra.
+
+## 6. Cenários simulados
+
+Para facilitar a avaliação, o projeto possui cenários de teste configuráveis pelo MSW.
+
+Com a variável `VITE_SHOW_MOCK_TOOLS=true`, o botão **Mock tools** permite simular situações como:
+
+- Alteração do preço de um NFT
+- Mudança na disponibilidade
+- Pagamento recusado
+- Sessão expirada
+- Lentidão na rede
+- Falhas de conexão
+- Timeout após a criação de um pedido
+- Restauração dos dados iniciais
+
+Também é possível configurar os cenários utilizando o console do navegador:
+
+```javascript
+await fetch('/api/mock/scenario', {
+  method: 'POST',
+  headers: {
+    'content-type': 'application/json',
+  },
+  body: JSON.stringify({
+    payment: 'declined',
+    latencyMs: 250,
+  }),
+})
+```
+
+Os principais parâmetros disponíveis são:
+
+| Parâmetro | Função |
+|---|---|
+| `latencyMs` | Define a latência simulada em milissegundos |
+| `payment` | Simula pagamento `confirmed` ou `declined` |
+| `force500` | Simula erro HTTP 500 |
+| `expireSession` | Simula expiração de sessão |
+| `timeoutAfterOrderCreation` | Simula timeout após criar um pedido |
+
+### Endpoints de controle
+
+| Método | Endpoint | Descrição |
+|---|---|---|
+| POST | `/api/mock/nft-update` | Modifica preço ou disponibilidade e emite `nft.updated` |
+| POST | `/api/mock/replay-old-nft` | Reenvia um evento antigo de NFT |
+| POST | `/api/mock/scenario` | Configura um cenário simulado |
+| POST | `/api/mock/reset` | Restaura os dados e cenários iniciais |
+
+### Recuperação após timeout
+
+Um dos cenários implementados simula uma situação em que o pedido é criado, mas a resposta da API demora mais do que o tempo permitido pelo Axios.
+
+Nesse caso, a simulação mantém o pedido registrado, enquanto a requisição ultrapassa o timeout de 8 segundos.
+
+Ao atualizar a página de checkout, a aplicação pode recuperar o pedido utilizando sua chave de idempotência, evitando a criação de uma segunda compra.
+
+Esse cenário pode ser ativado com `timeoutAfterOrderCreation: true` e é consumido uma vez.
+
+## 7. Testes automatizados
+
+Utilizei Playwright para testar os principais fluxos da aplicação, incluindo autenticação, catálogo, carrinho, pagamento e atualizações em tempo real.
+
+Os testes também verificam situações de erro e recuperação.
+
+### Instalação do navegador de testes
+
+```bash
 npx playwright install chromium
+```
+
+### Executar todos os testes
+
+```bash
 npm run test:e2e
 ```
 
-Para executar apenas testes desktop, reduzindo o consumo de memória:
+### Testes desktop
 
 ```bash
 npx playwright test --project=chromium-desktop --workers=2
 ```
 
-Testes mobile (perfil Pixel 7):
+### Testes mobile
 
 ```bash
 npx playwright test --project=chromium-mobile --workers=2
 ```
 
-O Playwright inicia o Vite automaticamente, guarda screenshots/traces em `test-results` quando falha e gera relatório HTML com `npx playwright show-report`.
+### Resultados
 
-Para métricas Lighthouse, gere antes o build e rode `npm run lighthouse`. A configuração `lighthouserc.json` mede três vezes a página inicial e `/nft/042` e grava relatórios em `.lighthouseci`. **Pontuações não são garantidas**: execute no ambiente final, registre mediana das categorias, LCP/CLS/TBT, browser e máquina, e compare mobile e desktop antes da entrega.
+Na validação realizada durante o desenvolvimento, os 19 testes existentes passaram nos dois perfis:
 
-## Variáveis de ambiente
+| Ambiente | Resultado |
+|---|---|
+| Desktop (Chromium) | 19 de 19 testes aprovados |
+| Mobile (Chromium) | 19 de 19 testes aprovados |
 
-Copie `.env.example` para `.env`:
+O Playwright utiliza ambientes isolados para os testes, reduzindo a interferência entre diferentes cenários.
 
-| Variável | Uso |
-| --- | --- |
-| `VITE_ENABLE_MSW=true` | Ativa REST mock + canal Socket.IO no service worker |
-| `VITE_SHOW_MOCK_TOOLS=true` | Exibe painel de cenários para avaliação |
-| `VITE_API_BASE_URL=/api` | Base URL consumida via Axios |
-| `VITE_SOCKET_URL=wss://kurio.mock` | Endpoint simulado usado pelo `socket.io-client` |
+Quando um teste falha, são gerados arquivos que ajudam a identificar o problema, incluindo screenshots e traces.
 
-O mesmo MSW pode funcionar no build publicado. Não exponha credenciais reais: os usuários abaixo são apenas fixtures.
+Para visualizar o relatório HTML:
 
-## Contas de demonstração
-
-| Usuário | E-mail | Senha |
-| --- | --- | --- |
-| Colecionador principal | `collector@kurio.test` | `12345678` |
-| Segundo colecionador | `second@kurio.test` | `12345678` |
-
-As senhas são verificadas por hash no banco simulado local; o app nunca deveria ser usado para guardar dados reais. A sessão usa um token fictício, persistido para sobreviver ao refresh.
-
-## Fluxos para conferir
-
-1. No catálogo, busque, combine filtros, altere a ordenação, navegue entre páginas e use Voltar. Os parâmetros ficam na URL.
-2. Abra um NFT, escolha a edição, ajuste a quantidade e compre. É possível continuar como visitante no carrinho.
-3. Faça login ao iniciar checkout: os itens do visitante seguem para o usuário.
-4. No carrinho, use o cupom `KURIO10`; `EXPIRED` simula cupom expirado e códigos desconhecidos são inválidos.
-5. No checkout, revise dados do colecionador, carteira, rede e cotação; o pedido passa por pendente até confirmado/recusado. O recibo conserva os valores originais.
-6. No perfil, teste a atualização dos dados e senha. Em Carteiras, edite ou cadastre uma carteira secundária.
-7. Faça logout, entre com o segundo usuário e confirme que perfil, favoritos, carteiras e pedidos do primeiro não aparecem.
-
-## Cenários simulados e reset
-
-Com `VITE_SHOW_MOCK_TOOLS=true`, use o botão **Mock tools** no canto da página. Ele permite alterar o preço do NFT #042, recusar pagamento, expirar sessão, ativar rede lenta, induzir timeout após criação do pedido e restaurar o cenário original.
-
-Também é possível usar `fetch` no console do navegador (na mesma origem):
-
-```js
-await fetch('/api/mock/scenario', {
-  method: 'POST',
-  headers: { 'content-type': 'application/json' },
-  body: JSON.stringify({ payment: 'declined', latencyMs: 250 }),
-})
+```bash
+npx playwright show-report
 ```
 
-Campos disponíveis: `latencyMs` (milissegundos), `payment` (`confirmed`/`declined`), `force500`, `expireSession` e `timeoutAfterOrderCreation` (único uso).
+## 8. Auditorias Lighthouse
 
-Outros endpoints de controle:
+Também utilizei Lighthouse CI para avaliar performance, acessibilidade, boas práticas e SEO.
 
-| Método e rota | Finalidade |
-| --- | --- |
-| `POST /api/mock/nft-update` | Muda preço/disponibilidade (ex.: `{ "nftId":"042", "priceEth":"1.79" }`) e envia `nft.updated` |
-| `POST /api/mock/replay-old-nft` | Reenvia versão antiga via Socket.IO, sem modificar banco |
-| `POST /api/mock/scenario` | Ajusta cenário; as propriedades não informadas são mantidas |
-| `POST /api/mock/reset` | Restaura banco, cenários e sessão inicial |
+As auditorias foram realizadas na página inicial e na página de detalhes do NFT, considerando desktop e mobile.
 
-**Timeout depois de criar o pedido:** com `timeoutAfterOrderCreation: true`, o POST é persistido, mas sua resposta demora 9 segundos (acima do timeout Axios de 8 segundos). O usuário pode recarregar a página de checkout para recuperar o mesmo pedido pela chave de idempotência. O cenário volta sozinho para `false` depois do primeiro uso.
+Foram feitas três medições por página e dispositivo, totalizando **12 auditorias**.
 
-**Estado entre testes:** Playwright usa contextos de navegador isolados; `localStorage` é limpo antes dos testes. Para voltar manualmente ao padrão, use o reset do painel, que também restaura o catálogo e a sessão.
+### Resultados
 
-## Arquitetura e contratos
+| Ambiente | Página | Performance | Acessibilidade | Boas práticas | SEO |
+|---|---|---:|---:|---:|---:|
+| Mobile | Início | 86 | 98 | 96 | 92 |
+| Mobile | Detalhe do NFT | 88 | 100 | 96 | 92 |
+| Desktop | Início | 95 | 100 | 96 | 92 |
+| Desktop | Detalhe do NFT | 92 | 97 | 96 | 92 |
 
-- [`ARCHITECTURE.md`](./ARCHITECTURE.md): fluxo dos dados, sessões, cache, decisões e limitações.
-- [`docs/API_CONTRACTS.md`](./docs/API_CONTRACTS.md): recursos REST, códigos de erro e eventos Socket.IO.
-- [`docs/FIGMA_COMPONENT_MAP.md`](./docs/FIGMA_COMPONENT_MAP.md): correspondência de componentes e frames.
+Todas as metas desktop foram atingidas.
 
-Organização: `src/api` faz chamadas Axios; `src/hooks` usa Query e sockets; `src/mocks` mantém fixtures, handlers MSW e DB; `src/pages`/`src/components` são a interface; `e2e` contém testes Playwright.
+No mobile, acessibilidade, boas práticas e SEO atingiram as metas. A performance ficou um pouco abaixo do mínimo solicitado, com 86 pontos na página inicial e 88 na página de detalhes.
 
-## Publicação
+Identifiquei oportunidades de melhoria relacionadas principalmente ao carregamento das imagens e à execução do JavaScript.
 
-O projeto é um SPA Vite. A configuração `vercel.json` redireciona rotas para o `index.html`, permitindo acesso direto e refresh. Antes de fazer push, rode build, testes desktop/mobile e confira no próprio endereço Vercel que o MSW e o socket funcionam.
+Os resultados apresentados são medianas das medições realizadas no ambiente local.
 
-As funcionalidades auxiliares fora do escopo permanecem informativas ou desabilitadas, sem indicar falsamente que uma ação foi concluída.
+### Executar as auditorias
+
+Primeiro, gere o build:
+
+```bash
+npm run build
+```
+
+Para executar as medições mobile:
+
+```bash
+npm run lighthouse
+```
+
+Para executar as medições desktop, utilizando a configuração específica:
+
+```bash
+npx lhci autorun --config=./lighthouserc.desktop.json
+```
+
+### Relatório completo
+
+As configurações, os resultados individuais, as métricas LCP, CLS e TBT e a análise dos resultados estão disponíveis em:
+
+**[Relatório de resultados Lighthouse](./docs/LIGHTHOUSE_RESULTS.md)**
+
+## 9. Arquitetura e documentação
+
+O código foi organizado separando a comunicação com APIs, as regras de gerenciamento de dados, os componentes visuais e os cenários simulados.
+
+### Estrutura principal
+
+| Pasta | Responsabilidade |
+|---|---|
+| `src/api` | Configuração e chamadas HTTP com Axios |
+| `src/hooks` | Hooks, consultas e sincronização de dados |
+| `src/mocks` | MSW, fixtures, handlers e banco simulado |
+| `src/pages` | Páginas da aplicação |
+| `src/components` | Componentes reutilizáveis da interface |
+| `e2e` | Testes automatizados com Playwright |
+| `docs` | Documentação complementar |
+
+### Documentação adicional
+
+- [Arquitetura do projeto](./ARCHITECTURE.md) — decisões técnicas, gerenciamento de sessão, cache e limitações.
+- [Contratos da API](./docs/API_CONTRACTS.md) — recursos REST, respostas de erro e eventos Socket.IO.
+- [Mapeamento do Figma](./docs/FIGMA_COMPONENT_MAP.md) — relação entre os componentes implementados e os layouts.
+- [Resultados Lighthouse](./docs/LIGHTHOUSE_RESULTS.md) — auditorias de performance e qualidade.
+
+## 10. Publicação
+
+A aplicação foi publicada na Vercel, utilizando o build de produção do Vite.
+
+Como o projeto utiliza TanStack Router, o arquivo `vercel.json` configura o redirecionamento necessário para que as rotas funcionem ao acessar diretamente uma URL ou atualizar a página.
+
+As APIs e os eventos em tempo real continuam simulados no ambiente publicado.
+
+**Link da aplicação:**
+
+https://kurio-nft-marketplace-theta.vercel.app/
+
+## 11. Considerações finais
+
+Durante o desenvolvimento deste desafio, procurei manter a fidelidade visual ao Figma, mas também dar atenção ao funcionamento das páginas, ao gerenciamento dos dados e ao tratamento de erros.
+
+A utilização do MSW permitiu testar diferentes situações sem depender de um backend real, enquanto o Playwright ajudou a verificar os fluxos da aplicação de forma automatizada.
+
+Também utilizei o Lighthouse para identificar pontos positivos e oportunidades de melhoria, principalmente relacionados à performance mobile.
+
+O projeto me permitiu trabalhar com diferentes ferramentas do ecossistema React e aplicar conceitos importantes de desenvolvimento frontend, como gerenciamento de estado assíncrono, integração com APIs, testes e responsividade.
