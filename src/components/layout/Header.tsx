@@ -1,4 +1,6 @@
-import { Link, useRouterState } from '@tanstack/react-router'
+import { Link, useNavigate, useRouterState } from '@tanstack/react-router'
+import { useState } from 'react'
+import { SearchBar } from '@/components/nft/SearchBar'
 import { LogOut, Search, User } from 'lucide-react'
 import { useCart } from '@/hooks/useCart'
 import { useSession } from '@/hooks/useSession'
@@ -13,6 +15,9 @@ const navItem =
 const navActive = 'border-accent font-medium text-accent-light'
 
 export function Header() {
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchText, setSearchText] = useState('')
+  const navigate = useNavigate()
   const cart = useCart()
   const session = useSession()
   const pathname = useRouterState({ select: (state) => state.location.pathname })
@@ -39,9 +44,21 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-7 justify-self-end">
-          <Link to="/" aria-label="Buscar NFTs" className="text-foreground transition-colors hover:text-accent-light">
-            <Search size={22} strokeWidth={2} />
-          </Link>
+          <div className="relative">
+            <button type="button" aria-label="Buscar NFTs" aria-expanded={searchOpen} aria-controls="desktop-nft-search"
+              className="text-foreground transition-colors hover:text-accent-light"
+              onClick={() => setSearchOpen((current) => !current)}>
+              <Search size={22} strokeWidth={2} />
+            </button>
+            {searchOpen && (
+              <div id="desktop-nft-search" className="absolute right-0 top-9 z-50 w-72 rounded-xl border border-border bg-panel p-2 shadow-soft">
+                <SearchBar value={searchText} onChange={setSearchText} onSubmit={() => {
+                  void navigate({ to: '/', search: { q: searchText || undefined, network: '', sort: 'recent', page: 1 } as never })
+                  setSearchOpen(false)
+                }} />
+              </div>
+            )}
+          </div>
           <Link to="/cart" className="relative text-foreground transition-colors hover:text-accent-light" aria-label={`Carrinho com ${count} itens`}>
             <CartOutlineIcon size={26} />
             {count > 0 && (

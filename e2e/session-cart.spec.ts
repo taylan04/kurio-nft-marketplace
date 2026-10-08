@@ -5,7 +5,7 @@ async function login(page: Page, email = 'collector@kurio.test') {
   await page.getByLabel('E-mail').fill(email)
   await page.getByLabel('Senha', { exact: true }).fill('12345678')
   await page.getByRole('button', { name: 'Entrar', exact: true }).click()
-  await expect(page).toHaveURL(/\/$/)
+  await expect.poll(() => new URL(page.url()).pathname).toBe('/')
 }
 
 test.beforeEach(async ({ page }) => {
@@ -22,7 +22,7 @@ test('a sessao sobrevive ao refresh e o logout protege as rotas privadas', async
   await expect(page.getByLabel('E-mail')).toHaveValue('collector@kurio.test')
 
   await page.getByRole('button', { name: 'Sair' }).click()
-  await expect(page).toHaveURL(/\/$/)
+  await expect.poll(() => new URL(page.url()).pathname).toBe('/')
   await page.goto('/wallets')
   await expect(page).toHaveURL(/\/login/)
 })
@@ -32,7 +32,7 @@ test('a troca de usuario nao mostra carteiras da sessao anterior', async ({ page
   await page.goto('/wallets')
   await expect(page.getByRole('button', { name: 'Editar carteira principal Reserva' })).toBeVisible()
   await page.getByRole('button', { name: 'Sair' }).click()
-  await expect(page).toHaveURL(/\/$/)
+  await expect.poll(() => new URL(page.url()).pathname).toBe('/')
 
   await login(page, 'second@kurio.test')
   await page.goto('/wallets')

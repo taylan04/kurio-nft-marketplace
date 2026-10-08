@@ -7,8 +7,12 @@ test.beforeEach(async ({ page }) => {
 })
 
 test('catálogo mantém busca na URL e abre detalhe', async ({ page }) => {
-  await page.getByLabel('Explorar coleções').fill('Emerald')
-  await page.getByLabel('Explorar coleções').press('Enter')
+  const search = page.getByRole('textbox', { name: 'Explorar coleções' })
+  if (!(await search.isVisible())) {
+    await page.getByRole('button', { name: 'Buscar NFTs' }).click()
+  }
+  await search.fill('Emerald')
+  await search.press('Enter')
   await expect(page).toHaveURL(/q=Emerald/)
   await expect(page.getByText('Emerald Ape #042').first()).toBeVisible()
   await page.getByText('Emerald Ape #042').first().click()
@@ -17,11 +21,17 @@ test('catálogo mantém busca na URL e abre detalhe', async ({ page }) => {
 })
 
 test('login recupera sessão simulada', async ({ page }) => {
-  await page.goto('/login')
+  // Em desktop navega sem recarregar o worker; em mobile usa acesso direto.
+  const loginLink = page.getByRole('link', { name: 'Entrar', exact: true })
+  if (await loginLink.isVisible()) {
+    await loginLink.click()
+  } else {
+    await page.goto('/login', { waitUntil: 'domcontentloaded' })
+  }
   await page.getByLabel('E-mail').fill('collector@kurio.test')
   await page.getByLabel('Senha', { exact: true }).fill('12345678')
   await page.getByRole('button', { name: 'Entrar', exact: true }).click()
-  await expect(page).toHaveURL(/\/$/)
+  await expect.poll(() => new URL(page.url()).pathname).toBe('/')
 })
 
 test('adiciona NFT ao carrinho e mantém após refresh', async ({ page }) => {
