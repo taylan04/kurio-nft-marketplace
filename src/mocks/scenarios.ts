@@ -2,10 +2,11 @@ export type MockScenario = {
   latencyMs: number
   payment: 'confirmed' | 'declined'
   force500: boolean
+  expireSession: boolean
 }
 
 const KEY = 'kurio-mock-scenario'
-const defaults: MockScenario = { latencyMs: 250, payment: 'confirmed', force500: false }
+const defaults: MockScenario = { latencyMs: 250, payment: 'confirmed', force500: false, expireSession: false }
 
 export function getScenario(): MockScenario {
   const raw = localStorage.getItem(KEY)
@@ -14,4 +15,8 @@ export function getScenario(): MockScenario {
 
 export function setScenario(next: Partial<MockScenario>) {
   localStorage.setItem(KEY, JSON.stringify({ ...getScenario(), ...next }))
+}
+
+export function resetScenario() {
+  localStorage.removeItem(KEY)
 }

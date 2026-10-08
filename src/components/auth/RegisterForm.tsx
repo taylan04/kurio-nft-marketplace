@@ -1,20 +1,31 @@
 import { useState } from 'react'
-import { Link, useNavigate } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { PasswordInput } from './PasswordInput'
 import { SocialLogin } from './SocialLogin'
 import { authInput, authSubmit } from './authStyles'
 import { useRegister } from '@/hooks/useSession'
+import { apiErrorMessage } from '@/lib/apiError'
+import { consumeRedirect } from '@/lib/session'
 
 export function RegisterForm() {
-  const navigate = useNavigate()
   const mutation = useRegister()
   const [form, setForm] = useState({ username: '', email: '', password: '', confirm: '' })
+  const [validationError, setValidationError] = useState('')
   const submit = (event: React.FormEvent) => {
     event.preventDefault()
-    if (form.password !== form.confirm) return
-    mutation.mutate({ username: form.username, email: form.email, password: form.password }, { onSuccess: () => navigate({ to: '/' }) })
+    if (form.username.trim().length < 3 || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email.trim())) {
+      setValidationError('Informe um nome de usuário com 3 caracteres ou mais e um e-mail válido.')
+      return
+    }
+    if (form.password.length < 8 || form.password !== form.confirm) {
+      setValidationError('A senha precisa ter 8 caracteres ou mais e a confirmação deve ser igual.')
+      return
+    }
+    setValidationError('')
+    mutation.mutate({ username: form.username.trim(), email: form.email.trim(), password: form.password },
+      { onSuccess: () => window.location.assign(consumeRedirect()) })
   }
   const mismatch = form.confirm.length > 0 && form.password !== form.confirm
 
@@ -41,7 +52,7 @@ export function RegisterForm() {
         </div>
       </div>
 
-      {mutation.error && <p role="alert" className="mt-3 text-sm text-danger">Não foi possível criar a conta. Verifique os dados.</p>}
+      {(validationError || mutation.error) && <p role="alert" className="mt-3 text-sm text-danger">{validationError || apiErrorMessage(mutation.error, 'Não foi possível criar a conta.')}</p>}
 
       <button className={`${authSubmit} mt-10 md:mt-6`} disabled={mutation.isPending || mismatch}>
         <span className="md:hidden">Criar perfil</span>

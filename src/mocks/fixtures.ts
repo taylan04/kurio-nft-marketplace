@@ -93,9 +93,9 @@ const extraNfts: NFT[] = extraNames.map((name, index) => {
 
 export const nftFixtures: NFT[] = [...baseNfts, ...extraNfts]
 
-export const userFixtures: Array<User & { password: string }> = [
-  { id: 'user-1', username: 'collector', displayName: 'Colecionador Kurio', email: 'collector@kurio.test', password: '12345678', ens: 'nova.kurio.eth', walletAlias: 'Reserva' },
-  { id: 'user-2', username: 'second', displayName: 'Segundo Colecionador', email: 'second@kurio.test', password: '12345678', ens: 'second.kurio.eth', walletAlias: 'Principal' },
+export const userFixtures: Array<User & { passwordSalt: string; passwordHash: string }> = [
+  { id: 'user-1', username: 'collector', displayName: 'Colecionador Kurio', email: 'collector@kurio.test', passwordSalt: 'eeb390e362b397eb712830c4d118cfcf', passwordHash: '560ce199809d4bd705ad37ef043562ee8110c2f139c33eaedc5dc340e022b573', ens: 'nova.kurio.eth', walletAlias: 'Reserva' },
+  { id: 'user-2', username: 'second', displayName: 'Segundo Colecionador', email: 'second@kurio.test', passwordSalt: 'd50d1fbd2d65420c0187415738818c2b', passwordHash: '60550e07cd380327746c3424b51bf8293d020a4671de7c33c97c879f1ad03e71', ens: 'second.kurio.eth', walletAlias: 'Principal' },
 ]
 
 export const walletFixtures: Wallet[] = [

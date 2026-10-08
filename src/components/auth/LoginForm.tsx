@@ -7,13 +7,20 @@ import { SocialLogin } from './SocialLogin'
 import { authInput, authSubmit } from './authStyles'
 import { useLogin } from '@/hooks/useSession'
 import { consumeRedirect } from '@/lib/session'
+import { apiErrorMessage } from '@/lib/apiError'
 
 export function LoginForm() {
   const mutation = useLogin()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [validationError, setValidationError] = useState('')
   const submit = (event: React.FormEvent) => {
     event.preventDefault()
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim()) || !password) {
+      setValidationError('Informe um e-mail válido e sua senha.')
+      return
+    }
+    setValidationError('')
     mutation.mutate({ email, password }, { onSuccess: () => { window.location.assign(consumeRedirect()) } })
   }
 
@@ -31,12 +38,12 @@ export function LoginForm() {
       </div>
 
       <div className="mt-2.5 flex justify-end md:mt-[11px]">
-        <button type="button" className="text-sm leading-5 text-accent-light hover:underline">Esqueceu a senha?</button>
+        <span aria-disabled="true" title="Recuperação de senha indisponível nesta demonstração" className="text-sm leading-5 text-muted">Esqueceu a senha?</span>
       </div>
 
-      {mutation.error && (
+      {(mutation.error || validationError) && (
         <p role="alert" className="mt-3 text-sm text-danger">
-          {mutation.error instanceof Error ? mutation.error.message : 'Não foi possível entrar.'}
+          {validationError || apiErrorMessage(mutation.error, 'Não foi possível entrar.')}
         </p>
       )}
 

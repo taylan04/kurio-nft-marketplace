@@ -4,7 +4,8 @@ import { multiplyEth } from '@/lib/money'
 import type { Cart, CartItem, CartLine, CatalogSearch, NFT, Order, Quote, Wallet } from '@/types/domain'
 import { getAuthUser, getCartKey, readDb, resetDb, writeDb } from './db'
 import { emitRealtime, realtimeHandler } from './realtime'
-import { getScenario, setScenario } from './scenarios'
+import { getScenario, resetScenario, setScenario } from './scenarios'
+import { createPasswordSalt, hashPassword } from './passwords'
 
 async function networkDelay() {
   await delay(getScenario().latencyMs)
@@ -16,7 +17,7 @@ function error(message: string, status = 400) {
 
 function requireUser(request: Request) {
   const db = readDb()
-  const user = getAuthUser(request, db)
+  const user = getScenario().expireSession ? undefined : getAuthUser(request, db)
   return { db, user }
 }
 
@@ -152,7 +153,7 @@ export const handlers = [
     const input = await request.json() as { email: string; password: string }
     const db = readDb()
     const user = db.users.find((entry) => entry.email.toLowerCase() === input.email.toLowerCase())
-    if (!user || user.password !== input.password) return error('E-mail ou senha inválidos.', 401)
+    if (!user || !input.password || await hashPassword(input.password, user.passwordSalt) !== user.passwordHash) return error('E-mail ou senha inválidos.', 401)
     const token = crypto.randomUUID()
     db.sessions[token] = user.id
     const guestId = request.headers.get('x-guest-id')
@@ -171,7 +172,7 @@ export const handlers = [
       delete db.appliedCoupons[guestKey]
     }
     writeDb(db)
-    const { password: _password, ...safeUser } = user
+    const { passwordHash: _hash, passwordSalt: _salt, ...safeUser } = user
     return HttpResponse.json({ token, user: safeUser })
   }),
 
@@ -179,14 +180,18 @@ export const handlers = [
     await networkDelay()
     const input = await request.json() as { username: string; email: string; password: string }
     const db = readDb()
-    if (db.users.some((entry) => entry.email.toLowerCase() === input.email.toLowerCase())) return error('Este e-mail já está cadastrado.', 409)
-    if (input.password.length < 8) return error('A senha precisa ter pelo menos 8 caracteres.', 422)
-    const user = { id: crypto.randomUUID(), username: input.username, displayName: input.username, email: input.email, password: input.password }
+    const email = input.email?.trim().toLowerCase()
+    if (!input.username?.trim() || input.username.trim().length < 3 || !email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))
+      return error('Informe nome de usuário (mínimo 3 caracteres) e e-mail válidos.', 422)
+    if (db.users.some((entry) => entry.email.toLowerCase() === email)) return error('Este e-mail já está cadastrado.', 409)
+    if (!input.password || input.password.length < 8) return error('A senha precisa ter pelo menos 8 caracteres.', 422)
+    const salt = createPasswordSalt()
+    const user = { id: crypto.randomUUID(), username: input.username.trim(), displayName: input.username.trim(), email, passwordSalt: salt, passwordHash: await hashPassword(input.password, salt) }
     db.users.push(user)
     const token = crypto.randomUUID()
     db.sessions[token] = user.id
     writeDb(db)
-    const { password: _password, ...safeUser } = user
+    const { passwordHash: _hash, passwordSalt: _salt, ...safeUser } = user
     return HttpResponse.json({ token, user: safeUser }, { status: 201 })
   }),
 
@@ -194,7 +199,7 @@ export const handlers = [
     await networkDelay()
     const { user } = requireUser(request)
     if (!user) return error('Sessão inválida ou expirada.', 401)
-    const { password: _password, ...safeUser } = user
+    const { passwordHash: _hash, passwordSalt: _salt, ...safeUser } = user
     const token = request.headers.get('authorization')!.replace(/^Bearer\s+/i, '')
     return HttpResponse.json({ token, user: safeUser })
   }),
@@ -368,7 +373,7 @@ export const handlers = [
   http.get('/api/profile', async ({ request }) => {
     const { user } = requireUser(request)
     if (!user) return error('Sessão expirada.', 401)
-    const { password: _password, ...safeUser } = user
+    const { passwordHash: _hash, passwordSalt: _salt, ...safeUser } = user
     return HttpResponse.json(safeUser)
   }),
 
@@ -377,9 +382,19 @@ export const handlers = [
     const { db, user } = requireUser(request)
     if (!user) return error('Sessão expirada.', 401)
     const input = await request.json() as Record<string, string>
-    Object.assign(user, input)
+    if (!input.displayName?.trim() || !input.username?.trim() || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(input.email || ''))
+      return error('Preencha os campos obrigatórios com dados válidos.', 422)
+    if (db.users.some((entry) => entry.id !== user.id && entry.email.toLowerCase() === input.email.toLowerCase()))
+      return error('Este e-mail já pertence a outra conta.', 409)
+    // Only user-editable fields are accepted; never mass-assign secrets.
+    user.displayName = input.displayName.trim()
+    user.username = input.username.trim()
+    user.email = input.email.trim().toLowerCase()
+    user.ens = input.ens?.trim()
+    user.walletAlias = input.walletAlias?.trim()
+    if (typeof input.avatar === 'string') user.avatar = input.avatar
     writeDb(db)
-    const { password: _password, ...safeUser } = user
+    const { passwordHash: _hash, passwordSalt: _salt, ...safeUser } = user
     return HttpResponse.json(safeUser)
   }),
 
@@ -388,9 +403,10 @@ export const handlers = [
     const { db, user } = requireUser(request)
     if (!user) return error('Sessão expirada.', 401)
     const input = await request.json() as { currentPassword: string; newPassword: string }
-    if (input.currentPassword !== user.password) return error('Senha atual incorreta.', 422)
-    if (input.newPassword.length < 8) return error('Nova senha muito curta.', 422)
-    user.password = input.newPassword
+    if (!input.currentPassword || await hashPassword(input.currentPassword, user.passwordSalt) !== user.passwordHash) return error('Senha atual incorreta.', 422)
+    if (!input.newPassword || input.newPassword.length < 8) return error('Nova senha muito curta.', 422)
+    user.passwordSalt = createPasswordSalt()
+    user.passwordHash = await hashPassword(input.newPassword, user.passwordSalt)
     writeDb(db)
     return new HttpResponse(null, { status: 204 })
   }),
@@ -417,6 +433,7 @@ export const handlers = [
 
   http.post('/api/mock/reset', () => {
     resetDb()
+    resetScenario()
     return HttpResponse.json({ ok: true })
   }),
 

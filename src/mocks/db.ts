@@ -1,9 +1,14 @@
 import type { CartItem, NFT, Order, User, Wallet } from '@/types/domain'
 import { nftFixtures, userFixtures, walletFixtures } from './fixtures'
 
+export interface MockUser extends User {
+  passwordHash: string
+  passwordSalt: string
+}
+
 export interface MockDb {
   nfts: NFT[]
-  users: Array<User & { password: string }>
+  users: MockUser[]
   wallets: Wallet[]
   favorites: Record<string, string[]>
   carts: Record<string, CartItem[]>
@@ -14,7 +19,8 @@ export interface MockDb {
 }
 
 // v2: imagens reais (webp) e catálogo ampliado para paginação
-const DB_KEY = 'kurio-mock-db-v2'
+const DB_KEY = 'kurio-mock-db-v3'
+const LEGACY_DB_KEY = 'kurio-mock-db-v2'
 
 export function createInitialDb(): MockDb {
   return {
@@ -31,6 +37,9 @@ export function createInitialDb(): MockDb {
 }
 
 export function readDb(): MockDb {
+  // An early mock build stored demonstration passwords in localStorage.
+  // Never retain that legacy state when migrating to password hashes.
+  localStorage.removeItem(LEGACY_DB_KEY)
   const raw = localStorage.getItem(DB_KEY)
   if (!raw) {
     const db = createInitialDb()
@@ -49,6 +58,7 @@ export function writeDb(db: MockDb) {
 export function resetDb() {
   const db = createInitialDb()
   writeDb(db)
+  localStorage.removeItem(LEGACY_DB_KEY)
   localStorage.removeItem('kurio-session-token')
   return db
 }

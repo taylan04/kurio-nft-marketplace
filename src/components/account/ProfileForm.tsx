@@ -5,6 +5,7 @@ import { changePassword, fetchProfile, updateProfile } from '@/api/account'
 import { Input } from '@/components/ui/input'
 import { PasswordInput } from '@/components/auth/PasswordInput'
 import { EnsField, Field, fieldClass } from '@/components/form/fields'
+import { apiErrorMessage } from '@/lib/apiError'
 
 const saveButton = 'h-10 w-[131px] rounded-[2px] bg-accent text-sm font-bold text-[#1a100b] transition hover:brightness-110 disabled:opacity-60'
 
@@ -19,6 +20,8 @@ export function ProfileForm() {
   const pass = useMutation({ mutationFn: () => changePassword({ currentPassword: password.currentPassword, newPassword: password.newPassword }), onSuccess: () => setPassword({ currentPassword: '', newPassword: '', confirm: '' }) })
   const set = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, [key]: e.target.value })
   const mismatch = Boolean(password.confirm) && password.confirm !== password.newPassword
+  const invalidPassword = Boolean(password.currentPassword || password.newPassword || password.confirm) &&
+    (!password.currentPassword || password.newPassword.length < 8 || password.confirm !== password.newPassword)
   const pickAvatar = (file?: File) => { if (!file) return; const reader = new FileReader(); reader.onload = () => setForm((f) => ({ ...f, avatar: String(reader.result) })); reader.readAsDataURL(file) }
 
   if (profile.isLoading) return <p>Carregando perfil...</p>
@@ -46,7 +49,7 @@ export function ProfileForm() {
         <button type="submit" className="sr-only focus:not-sr-only" disabled={save.isPending}>Salvar dados</button>
       </form>
 
-      <form onSubmit={(e) => { e.preventDefault(); save.mutate(); if (password.currentPassword) pass.mutate() }} className="mt-10 max-w-[417px]">
+      <form onSubmit={(e) => { e.preventDefault(); if (invalidPassword) return; save.mutate(); if (password.currentPassword) pass.mutate() }} className="mt-10 max-w-[417px]">
         <h2 className="text-[15px] font-bold leading-5">Alterar senha</h2>
         <div className="mt-[19px] space-y-[18px]">
           <Field id="pw-current" label="Senha atual"><PasswordInput id="pw-current" autoComplete="current-password" value={password.currentPassword} onChange={(e) => setPassword({ ...password, currentPassword: e.target.value })} className={fieldClass} /></Field>
@@ -54,8 +57,11 @@ export function ProfileForm() {
           <Field id="pw-confirm" label="Confirmar nova senha"><PasswordInput id="pw-confirm" autoComplete="new-password" aria-invalid={mismatch} aria-describedby={mismatch ? 'pw-error' : undefined} value={password.confirm} onChange={(e) => setPassword({ ...password, confirm: e.target.value })} className={fieldClass} /></Field>
         </div>
         {mismatch && <p id="pw-error" role="alert" className="mt-2 text-sm text-danger">As senhas não coincidem.</p>}
+        {invalidPassword && !mismatch && <p role="alert" className="mt-2 text-sm text-danger">Preencha a senha atual e confirme a nova senha (mínimo de 8 caracteres).</p>}
+        {save.error && <p role="alert" className="mt-2 text-sm text-danger">{apiErrorMessage(save.error)}</p>}
+        {pass.error && <p role="alert" className="mt-2 text-sm text-danger">{apiErrorMessage(pass.error)}</p>}
         {(save.isSuccess || pass.isSuccess) && <p role="status" className="mt-2 text-sm text-accent-light">Alterações salvas.</p>}
-        <button type="submit" disabled={save.isPending || pass.isPending || mismatch || (Boolean(password.currentPassword) && password.newPassword.length < 8)} className={`${saveButton} mt-8`}>Salvar</button>
+        <button type="submit" disabled={save.isPending || pass.isPending || invalidPassword} className={`${saveButton} mt-8`}>Salvar</button>
       </form>
     </div>
   )
