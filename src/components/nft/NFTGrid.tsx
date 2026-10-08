@@ -1,4 +1,7 @@
-import { useState } from 'react'
+import { useNavigate } from '@tanstack/react-router'
+import { useFavorites } from '@/hooks/useNfts'
+import { useSession } from '@/hooks/useSession'
+import { rememberRedirect } from '@/lib/session'
 import type { NFT } from '@/types/domain'
 import { NFTCard } from './NFTCard'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -9,15 +12,19 @@ const gridClass = 'grid grid-cols-2 gap-x-4 gap-y-6 pb-8 md:gap-x-[34px] md:gap-
 const offsetClass = 'relative top-8 md:top-0'
 
 export function NFTGrid({ items, loading = false }: { items?: NFT[]; loading?: boolean }) {
-  const [favorites, setFavorites] = useState<Set<string>>(() => new Set())
+  const navigate = useNavigate()
+  const session = useSession()
+  const favorites = useFavorites(Boolean(session.data))
 
-  const toggleFavorite = (id: string) =>
-    setFavorites((previous) => {
-      const next = new Set(previous)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
+  const toggleFavorite = (id: string) => {
+    if (!session.data) {
+      rememberRedirect(window.location.pathname + window.location.search)
+      void navigate({ to: '/login' })
+      return
+    }
+    if (favorites.toggle.isPending) return
+    favorites.toggle.mutate({ id, favorite: Boolean(favorites.data?.includes(id)) })
+  }
 
   if (loading)
     return (
@@ -40,12 +47,15 @@ export function NFTGrid({ items, loading = false }: { items?: NFT[]; loading?: b
     )
 
   return (
-    <div className={gridClass}>
-      {items.map((nft, index) => (
-        <div key={nft.id} className={`min-w-0 ${index % 2 === 1 ? offsetClass : ''}`}>
-          <NFTCard nft={nft} favorite={favorites.has(nft.id)} onFavorite={() => toggleFavorite(nft.id)} />
-        </div>
-      ))}
-    </div>
+    <>
+      {favorites.toggle.isError && <p role="alert" className="mb-3 text-sm text-danger">Não foi possível salvar o favorito. Tente novamente.</p>}
+      <div className={gridClass}>
+        {items.map((nft, index) => (
+          <div key={nft.id} className={`min-w-0 ${index % 2 === 1 ? offsetClass : ''}`}>
+            <NFTCard nft={nft} favorite={Boolean(favorites.data?.includes(nft.id))} onFavorite={() => toggleFavorite(nft.id)} />
+          </div>
+        ))}
+      </div>
+    </>
   )
 }

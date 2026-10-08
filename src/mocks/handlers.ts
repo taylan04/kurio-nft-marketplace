@@ -222,6 +222,7 @@ export const handlers = [
 
   http.post('/api/favorites/:id', async ({ request, params }) => {
     await networkDelay()
+    if (getScenario().force500) return error('Falha transitória simulada nos favoritos.', 500)
     const { db, user } = requireUser(request)
     if (!user) return error('Faça login para favoritar.', 401)
     const ids = new Set(db.favorites[user.id] || [])
@@ -233,6 +234,7 @@ export const handlers = [
 
   http.delete('/api/favorites/:id', async ({ request, params }) => {
     await networkDelay()
+    if (getScenario().force500) return error('Falha transitória simulada nos favoritos.', 500)
     const { db, user } = requireUser(request)
     if (!user) return error('Faça login para favoritar.', 401)
     db.favorites[user.id] = (db.favorites[user.id] || []).filter((id) => id !== params.id)
