@@ -449,7 +449,7 @@ export const handlers = [
       label: input.label.trim(), nickname: input.nickname.trim(),
       profileName: input.profileName.trim(), secondary: input.secondary?.trim(),
       address: input.address.trim(), network: input.network, type: input.type,
-      email: input.email.trim().toLowerCase(), ens: input.ens?.trim(),
+      email: (input.email ?? '').trim().toLowerCase(), ens: input.ens?.trim(),
       referralCode: input.referralCode.trim(), primary: Boolean(input.primary),
     }
     // Only one main wallet per user; secondary wallets stay independent.
