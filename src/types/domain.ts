@@ -87,6 +87,7 @@ export interface Quote {
   totalEth: string
   coupon?: string
   stale?: boolean
+  revision?: string
 }
 
 export interface Cart {

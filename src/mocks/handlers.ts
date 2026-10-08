@@ -33,10 +33,19 @@ function buildQuote(items: CartItem[], nfts: NFT[], coupon?: string): Quote {
     networkFeeEth: fee.toFixed(3),
     totalEth: subtotal.minus(discount).plus(fee).toFixed(3),
     coupon,
+    revision: items.map((item) => {
+      const nft = nfts.find((entry) => entry.id === item.nftId)
+      return `${item.nftId}/${item.edition}/${item.quantity}/${nft?.version}/${nft?.priceEth}/${nft?.available}`
+    }).join('|'),
+    stale: items.some((item) => {
+      const nft = nfts.find((entry) => entry.id === item.nftId)
+      return !nft || !Number.isSafeInteger(item.quantity) || item.quantity < 1 ||
+        item.quantity > nft.available || !nft.editions.includes(item.edition)
+    }),
   }
 }
 
-function buildCart(request: Request, coupon?: string): Cart {
+function buildCart(request: Request): Cart {
   const db = readDb()
   const key = getCartKey(request, db)
   const items = db.carts[key] || []
@@ -45,7 +54,57 @@ function buildCart(request: Request, coupon?: string): Cart {
     if (!nft) return []
     return [{ ...item, nft, lineTotalEth: multiplyEth(nft.priceEth, item.quantity) }]
   })
-  return { items, lines, quote: buildQuote(items, db.nfts, coupon) }
+  return { items, lines, quote: buildQuote(items, db.nfts, db.appliedCoupons[key]) }
+}
+
+function matchesQuote(expected: Quote | undefined, actual: Quote) {
+  return !!expected && !actual.stale &&
+    expected.subtotalEth === actual.subtotalEth &&
+    expected.discountEth === actual.discountEth &&
+    expected.networkFeeEth === actual.networkFeeEth &&
+    expected.totalEth === actual.totalEth &&
+    expected.revision === actual.revision &&
+    (expected.coupon || '') === (actual.coupon || '')
+}
+
+function matchesItems(expected: CartItem[] | undefined, actual: CartItem[]) {
+  if (!Array.isArray(expected) || expected.length !== actual.length) return false
+  const key = (item: CartItem) => `${item.nftId}/${item.edition}/${item.quantity}`
+  return expected.map(key).sort().join('|') === actual.map(key).sort().join('|')
+}
+
+// Orders are persisted immediately; reading an order after a refresh can finish a
+// pending operation even when the original tab's timer was interrupted.
+function settleOrder(orderId: string) {
+  const db = readDb()
+  const order = db.orders.find((entry) => entry.id === orderId)
+  if (!order || order.status !== 'pending') return
+  if (Date.now() - new Date(order.createdAt).getTime() < 1400) return
+
+  order.status = getScenario().payment === 'declined' ? 'declined' : 'confirmed'
+  order.version += 1
+  if (order.status === 'confirmed') {
+    const cartKey = `user:${order.userId}`
+    const purchased = new Map(order.lines.map((line) => [`${line.nftId}:${line.edition}`, line.quantity]))
+    db.carts[cartKey] = (db.carts[cartKey] || []).flatMap((item) => {
+      const bought = purchased.get(`${item.nftId}:${item.edition}`) || 0
+      return item.quantity > bought ? [{ ...item, quantity: item.quantity - bought }] : []
+    })
+    for (const line of order.lines) {
+      const nft = db.nfts.find((entry) => entry.id === line.nftId)
+      if (!nft) continue
+      nft.available = Math.max(0, nft.available - line.quantity)
+      nft.version += 1
+    }
+  }
+  writeDb(db)
+  if (order.status === 'confirmed') {
+    for (const line of order.lines) {
+      const nft = db.nfts.find((entry) => entry.id === line.nftId)
+      if (nft) emitRealtime('nft.updated', { resourceId: nft.id, version: nft.version, data: nft })
+    }
+  }
+  emitRealtime('order.updated', { resourceId: order.id, userId: order.userId, version: order.version, data: order })
 }
 
 export const handlers = [
@@ -107,7 +166,9 @@ export const handlers = [
         else merged.push(guestItem)
       }
       db.carts[userKey] = merged
+      if (db.appliedCoupons[guestKey] && !db.appliedCoupons[userKey]) db.appliedCoupons[userKey] = db.appliedCoupons[guestKey]
       delete db.carts[guestKey]
+      delete db.appliedCoupons[guestKey]
     }
     writeDb(db)
     const { password: _password, ...safeUser } = user
@@ -187,7 +248,8 @@ export const handlers = [
     const items = db.carts[key] || []
     const existing = items.find((item) => item.nftId === input.nftId && item.edition === input.edition)
     const nextQuantity = (existing?.quantity || 0) + input.quantity
-    if (nextQuantity > nft.available) return error('Quantidade indisponível.', 409)
+    if (!Number.isSafeInteger(input.quantity) || input.quantity < 1 ||
+        !nft.editions.includes(input.edition) || nextQuantity > nft.available) return error('Edição ou quantidade indisponível.', 409)
     if (existing) existing.quantity = nextQuantity
     else items.push(input)
     db.carts[key] = items
@@ -201,7 +263,8 @@ export const handlers = [
     const db = readDb()
     const nft = db.nfts.find((entry) => entry.id === params.id)
     if (!nft) return error('NFT não encontrado.', 404)
-    if (input.quantity < 1 || input.quantity > nft.available) return error('Quantidade indisponível.', 409)
+    if (!Number.isSafeInteger(input.quantity) || input.quantity < 1 || input.quantity > nft.available ||
+      !nft.editions.includes(input.edition)) return error('Edição ou quantidade indisponível.', 409)
     const key = getCartKey(request, db)
     const item = (db.carts[key] || []).find((entry) => entry.nftId === params.id)
     if (!item) return error('Item não está no carrinho.', 404)
@@ -224,9 +287,19 @@ export const handlers = [
     await networkDelay()
     const { coupon } = await request.json() as { coupon?: string }
     const db = readDb()
-    if (coupon && !db.coupons[coupon]) return error('Cupom inválido.', 422)
-    if (coupon && db.coupons[coupon] === 'expired') return error('Cupom expirado.', 422)
-    return HttpResponse.json(buildCart(request, coupon))
+    const normalized = coupon?.trim().toUpperCase()
+    if (normalized && !db.coupons[normalized]) return error('Cupom inválido.', 422)
+    if (normalized && db.coupons[normalized] === 'expired') return error('Cupom expirado.', 422)
+    const key = getCartKey(request, db)
+    if (normalized) db.appliedCoupons[key] = normalized
+    else delete db.appliedCoupons[key]
+    writeDb(db)
+    return HttpResponse.json(buildCart(request))
+  }),
+
+  http.get('/api/quote', async ({ request }) => {
+    await networkDelay()
+    return HttpResponse.json(buildCart(request))
   }),
 
   http.post('/api/orders', async ({ request }) => {
@@ -235,15 +308,21 @@ export const handlers = [
     if (!user) return error('Sessão expirada.', 401)
     const idempotencyKey = request.headers.get('Idempotency-Key')
     if (!idempotencyKey) return error('Idempotency-Key é obrigatória.', 400)
-    const input = await request.json() as { walletType: Wallet['type'] }
-    const cart = buildCart(request)
-    if (!cart.items.length) return error('Carrinho vazio.', 409)
-    const payloadSignature = JSON.stringify({ input, items: cart.items })
+    const input = await request.json() as { walletType: Wallet['type']; expectedQuote: Quote; expectedItems: CartItem[] }
+    const payloadSignature = JSON.stringify(input)
     const previous = db.orders.find((order) => order.idempotencyKey === idempotencyKey)
     if (previous) {
-      if (previous.payloadSignature !== payloadSignature) return error('Chave de idempotência reutilizada com conteúdo diferente.', 409)
-      return HttpResponse.json(previous)
+      if (previous.userId !== user.id || previous.payloadSignature !== payloadSignature) return error('Chave de idempotência reutilizada com conteúdo diferente.', 409)
+      settleOrder(previous.id)
+      const recovered = readDb().orders.find((entry) => entry.id === previous.id)!
+      return HttpResponse.json(recovered)
     }
+    if (!db.wallets.some((entry) => entry.userId === user.id && entry.type === input.walletType))
+      return error('Cadastre uma carteira deste tipo antes de finalizar.', 422)
+    const cart = buildCart(request)
+    if (!cart.items.length) return error('Carrinho vazio.', 409)
+    if (!matchesQuote(input.expectedQuote, cart.quote) || !matchesItems(input.expectedItems, cart.items))
+      return HttpResponse.json({ message: 'A cotação ou disponibilidade mudou. Revise o pedido.', quote: cart.quote }, { status: 409 })
     const order: Order = {
       id: `order-${crypto.randomUUID().slice(0, 8)}`,
       userId: user.id,
@@ -261,21 +340,19 @@ export const handlers = [
     db.orders.push(order)
     writeDb(db)
 
-    setTimeout(() => {
-      const latestDb = readDb()
-      const stored = latestDb.orders.find((entry) => entry.id === order.id)
-      if (!stored || stored.status !== 'pending') return
-      stored.status = getScenario().payment === 'declined' ? 'declined' : 'confirmed'
-      stored.version += 1
-      if (stored.status === 'confirmed') {
-        const cartKey = `user:${user.id}`
-        latestDb.carts[cartKey] = (latestDb.carts[cartKey] || []).filter((item) => !stored.lines.some((line) => line.nftId === item.nftId))
-      }
-      writeDb(latestDb)
-      emitRealtime('order.updated', { resourceId: stored.id, userId: user.id, version: stored.version, data: stored })
-    }, 1400)
+    setTimeout(() => settleOrder(order.id), 1450)
 
     return HttpResponse.json(order, { status: 201 })
+  }),
+
+  http.get('/api/orders/by-key/:key', async ({ request, params }) => {
+    await networkDelay()
+    const { db, user } = requireUser(request)
+    if (!user) return error('Sessão expirada.', 401)
+    const existing = db.orders.find((entry) => entry.userId === user.id && entry.idempotencyKey === params.key)
+    if (!existing) return error('Pedido não encontrado.', 404)
+    settleOrder(existing.id)
+    return HttpResponse.json(readDb().orders.find((entry) => entry.id === existing.id))
   }),
 
   http.get('/api/orders/:id', async ({ request, params }) => {
@@ -283,7 +360,9 @@ export const handlers = [
     const { db, user } = requireUser(request)
     if (!user) return error('Sessão expirada.', 401)
     const order = db.orders.find((entry) => entry.id === params.id && entry.userId === user.id)
-    return order ? HttpResponse.json(order) : error('Pedido não encontrado.', 404)
+    if (!order) return error('Pedido não encontrado.', 404)
+    settleOrder(order.id)
+    return HttpResponse.json(readDb().orders.find((entry) => entry.id === order.id))
   }),
 
   http.get('/api/profile', async ({ request }) => {

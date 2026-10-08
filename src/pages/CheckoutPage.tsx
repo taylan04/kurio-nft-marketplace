@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { ChevronLeft, MoreVertical } from 'lucide-react'
@@ -11,28 +11,93 @@ import { CouponForm } from '@/components/cart/CouponForm'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { useCart } from '@/hooks/useCart'
 import { useIsDesktop } from '@/hooks/useMediaQuery'
-import { createOrder } from '@/api/orders'
+import { createOrder, fetchOrderByKey } from '@/api/orders'
+import { validateQuote } from '@/api/cart'
 import { fetchWallets } from '@/api/account'
-import { newIdempotencyKey } from '@/lib/idempotency'
+import { isAxiosError } from 'axios'
+import { clearCheckoutAttempt, createCheckoutAttempt, readCheckoutAttempt } from '@/lib/checkoutAttempt'
 import { formatEth } from '@/lib/money'
-import type { Wallet } from '@/types/domain'
+import { useSession } from '@/hooks/useSession'
+import type { Quote, Wallet } from '@/types/domain'
+
+function sameQuote(a: Quote, b: Quote) {
+  return a.totalEth === b.totalEth && a.subtotalEth === b.subtotalEth &&
+    a.discountEth === b.discountEth && a.networkFeeEth === b.networkFeeEth &&
+    a.coupon === b.coupon && a.revision === b.revision
+}
 
 export function CheckoutPage() {
   const cart = useCart()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const isDesktop = useIsDesktop()
+  const session = useSession()
+  const wallets = useQuery({ queryKey: ['wallets'], queryFn: ({ signal }) => fetchWallets(signal), enabled: !!session.data })
   const [wallet, setWallet] = useState<Wallet['type']>('Coinbase Wallet')
   const [showCoupon, setShowCoupon] = useState(false)
-  const keyRef = useRef<string>(newIdempotencyKey())
+  const [reviewNotice, setReviewNotice] = useState('')
+  const [recovering, setRecovering] = useState(false)
+
+  useEffect(() => {
+    if (wallets.data?.length && !wallets.data.some((entry) => entry.type === wallet)) {
+      setWallet((wallets.data.find((entry) => entry.primary) || wallets.data[0]).type)
+    }
+  }, [wallets.data, wallet])
+
+  // If a request timed out after the server created it, reopen the SAME order
+  // rather than starting a second purchase when the collector returns.
+  useEffect(() => {
+    const userId = session.data?.user.id
+    if (!userId) return
+    const attempt = readCheckoutAttempt(userId)
+    if (!attempt) return
+    let active = true
+    setRecovering(true)
+    fetchOrderByKey(attempt.key)
+      .then((existing) => {
+        if (!active) return
+        clearCheckoutAttempt()
+        queryClient.setQueryData(['order', existing.id], existing)
+        navigate({ to: '/order/$orderId', params: { orderId: existing.id } })
+      })
+      .catch(() => { /* 404 means the request never arrived; the key remains reusable. */ })
+      .finally(() => { if (active) setRecovering(false) })
+    return () => { active = false }
+  }, [session.data?.user.id, navigate, queryClient])
+
   const order = useMutation({
-    mutationFn: () => createOrder({ walletType: wallet, idempotencyKey: keyRef.current }),
+    mutationFn: async () => {
+      const userId = session.data?.user.id
+      if (!userId) throw new Error('Sua sessão expirou. Entre novamente para continuar.')
+      const previous = readCheckoutAttempt(userId)
+      if (previous) {
+        // The order may have been accepted before a network timeout.
+        try {
+          return await fetchOrderByKey(previous.key)
+        } catch (error) {
+          if (!isAxiosError(error) || error.response?.status !== 404) throw error
+        }
+      }
+      if (!wallets.data?.some((entry) => entry.type === wallet)) throw new Error('Cadastre uma carteira desse tipo para continuar.')
+      // Always compare the latest REST quote with what the collector last saw.
+      const latest = await validateQuote()
+      queryClient.setQueryData(['cart'], latest)
+      if (latest.quote.stale) throw new Error('Uma edição está esgotada. Ajuste as quantidades no carrinho.')
+      if (!cart.data || !sameQuote(cart.data.quote, latest.quote)) {
+        setReviewNotice('Os preços ou taxas mudaram. Revise os novos valores e confirme novamente.')
+        throw new Error('Sua cotação mudou. Revise os valores antes de confirmar.')
+      }
+      const attempt = createCheckoutAttempt(userId, wallet, latest.quote, latest.items)
+      return createOrder({ walletType: attempt.walletType, expectedQuote: attempt.expectedQuote, expectedItems: attempt.expectedItems, idempotencyKey: attempt.key })
+    },
     onSuccess: (data) => {
+      clearCheckoutAttempt()
       queryClient.setQueryData(['order', data.id], data)
       navigate({ to: '/order/$orderId', params: { orderId: data.id } })
     },
   })
-  const disabled = useMemo(() => !cart.data?.lines.length || order.isPending, [cart.data?.lines.length, order.isPending])
+  const disabled = useMemo(() => !cart.data?.lines.length || order.isPending || recovering,
+    [cart.data?.lines.length, order.isPending, recovering])
 
   const status = cart.isLoading ? 'Carregando checkout...' : !cart.data?.lines.length ? 'Seu carrinho está vazio.' : null
   if (status) {
@@ -42,8 +107,9 @@ export function CheckoutPage() {
   }
   const data = cart.data!
 
-  const orderError = order.error && <p role="alert" className="mt-4 text-sm text-danger">Não foi possível enviar o pedido. O carrinho foi preservado.</p>
-  const confirmLabel = order.isPending ? 'Enviando pedido...' : 'Confirmar compra'
+  const orderError = order.error && <p role="alert" className="mt-4 text-sm text-danger">{order.error instanceof Error ? order.error.message : 'Não foi possível finalizar. Os itens foram preservados.'}</p>
+  const reviewMessage = reviewNotice && <p role="status" className="mt-3 text-sm text-accent-light">{reviewNotice}</p>
+  const confirmLabel = order.isPending ? 'Verificando e enviando...' : recovering ? 'Recuperando pedido...' : 'Confirmar compra'
 
   if (isDesktop) {
     return (
@@ -78,6 +144,7 @@ export function CheckoutPage() {
 
               <h2 className="mt-1.5 text-center text-[17px] font-bold leading-[22px]">Carteira e rede</h2>
               <div className="mt-4"><WalletSelector value={wallet} onChange={setWallet} /></div>
+              {reviewMessage}
               {orderError}
               <button type="button" disabled={disabled} onClick={() => order.mutate()} className="mt-6 h-11 w-full rounded-[3px] bg-accent text-[15px] font-bold text-[#1a100b] transition hover:brightness-110 disabled:opacity-60">
                 {confirmLabel}
@@ -99,7 +166,7 @@ export function CheckoutPage() {
         <h1 className="text-lg font-bold">Pagamento com carteira</h1>
       </header>
 
-      <ConnectedWallets />
+      <ConnectedWallets onSelect={setWallet} />
 
       <h2 className="mt-[13px] text-[15px] font-bold leading-5">Carteira e rede</h2>
       <div className="mt-4"><WalletSelector variant="mobile" value={wallet} onChange={setWallet} /></div>
@@ -108,6 +175,7 @@ export function CheckoutPage() {
         <span className="text-[15px]">Total:</span>
         <span className="text-[17px] text-accent-light">{formatEth(data.quote.totalEth)}</span>
       </p>
+      {reviewMessage}
       {orderError}
 
       <div className="fixed inset-x-0 bottom-0 bg-background px-7 pb-[max(34px,env(safe-area-inset-bottom))] pt-3">
@@ -120,7 +188,7 @@ export function CheckoutPage() {
 }
 
 /** Carteiras salvas do colecionador (mobile) */
-function ConnectedWallets() {
+function ConnectedWallets({ onSelect }: { onSelect: (value: Wallet['type']) => void }) {
   const wallets = useQuery({ queryKey: ['wallets'], queryFn: ({ signal }) => fetchWallets(signal) })
   const [selected, setSelected] = useState<string>()
   const list = wallets.data || []
@@ -132,7 +200,11 @@ function ConnectedWallets() {
         <h2 id="connected-title" className="text-[15px] font-bold leading-5">Carteira conectada</h2>
         <Link to="/wallets" className="text-[13px] font-bold text-accent-light hover:underline">Trocar carteira</Link>
       </div>
-      <RadioGroup aria-labelledby="connected-title" value={current} onValueChange={setSelected} className="mt-3 gap-[21px]">
+      <RadioGroup aria-labelledby="connected-title" value={current} onValueChange={(id) => {
+        setSelected(id)
+        const selectedWallet = list.find((entry) => entry.id === id)
+        if (selectedWallet) onSelect(selectedWallet.type)
+      }} className="mt-3 gap-[21px]">
         {list.map((wallet) => (
           <label key={wallet.id} htmlFor={`cw-${wallet.id}`} className="relative flex h-[92px] cursor-pointer items-center rounded-[10px] bg-panel pl-5 pr-4">
             <RadioGroupItem id={`cw-${wallet.id}`} value={wallet.id} className="h-[15px] w-[15px] border-[1.5px] data-[state=unchecked]:border-[#5e3c26]" />

@@ -8,6 +8,7 @@ export interface MockDb {
   favorites: Record<string, string[]>
   carts: Record<string, CartItem[]>
   coupons: Record<string, 'valid' | 'expired'>
+  appliedCoupons: Record<string, string>
   sessions: Record<string, string>
   orders: Order[]
 }
@@ -23,6 +24,7 @@ export function createInitialDb(): MockDb {
     favorites: { 'user-1': ['042'], 'user-2': [] },
     carts: {},
     coupons: { KURIO10: 'valid', EXPIRED: 'expired' },
+    appliedCoupons: {},
     sessions: {},
     orders: [],
   }
@@ -35,7 +37,9 @@ export function readDb(): MockDb {
     writeDb(db)
     return db
   }
-  return JSON.parse(raw) as MockDb
+  const saved = JSON.parse(raw) as MockDb
+  // Preserve existing local data created by older demonstration builds.
+  return { ...saved, appliedCoupons: saved.appliedCoupons || {} }
 }
 
 export function writeDb(db: MockDb) {

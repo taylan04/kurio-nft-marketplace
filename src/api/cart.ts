@@ -25,3 +25,8 @@ export async function applyCoupon(coupon?: string) {
   const { data } = await api.post<Cart>('/quote', { coupon })
   return data
 }
+
+export async function validateQuote(signal?: AbortSignal) {
+  const { data } = await api.get<Cart>('/quote', { signal })
+  return data
+}
