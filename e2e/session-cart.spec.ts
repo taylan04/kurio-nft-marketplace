@@ -54,5 +54,8 @@ test('o carrinho do visitante sobrevive ao refresh e acompanha o login', async (
   await page.getByLabel('Senha', { exact: true }).fill('12345678')
   await page.getByRole('button', { name: 'Entrar', exact: true }).click()
   await expect(page).toHaveURL(/\/checkout/)
+  if ((page.viewportSize()?.width ?? 1440) < 768) {
+    await page.getByText(/Revisar itens do pedido/).click()
+  }
   await expect(page.getByText('Emerald Ape #042').first()).toBeVisible()
 })

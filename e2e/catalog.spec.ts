@@ -11,7 +11,17 @@ test('filtros e paginação ficam na URL e o histórico restaura o estado', asyn
   await page.getByRole('button', { name: 'Página 2' }).click()
   await expect(page).toHaveURL(/page=2/)
 
-  await page.getByRole('button', { name: /Arte digital\s*\(/ }).click()
+  // Desktop uses the visible sidebar; mobile exposes the same controls in a dialog.
+  const isMobile = (page.viewportSize()?.width ?? 1440) < 768
+  if (isMobile) {
+    await page.getByRole('button', { name: 'Abrir filtros' }).click()
+    const filters = page.getByRole('dialog', { name: 'Filtros' })
+    await expect(filters).toBeVisible()
+    await filters.getByRole('button', { name: /Arte digital\s*\(/ }).click()
+    await page.keyboard.press('Escape')
+  } else {
+    await page.getByRole('button', { name: /Arte digital\s*\(/ }).click()
+  }
   await expect(page).toHaveURL(/category=Arte%20digital|category=Arte\+digital/)
   await expect(page).toHaveURL(/page=1/)
   await page.goBack()

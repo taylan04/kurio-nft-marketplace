@@ -30,6 +30,10 @@ test('timeout depois de criar o pedido recupera a mesma compra no refresh', asyn
   await expect(page).toHaveURL(/\/cart/)
   await page.getByRole('button', { name: 'Conectar e finalizar' }).click()
   await expect(page).toHaveURL(/\/checkout/)
+  // Collector details are collapsed by default on mobile to preserve the Figma layout.
+  if ((page.viewportSize()?.width ?? 1440) < 768) {
+    await page.getByRole('button', { name: 'Revisar dados do colecionador' }).click()
+  }
   await expect(page.getByLabel('E-mail')).toHaveValue('collector@kurio.test')
 
   await scenario(page, { timeoutAfterOrderCreation: true })

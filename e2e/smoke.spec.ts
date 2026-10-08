@@ -8,9 +8,11 @@ test.beforeEach(async ({ page }) => {
 
 test('catálogo mantém busca na URL e abre detalhe', async ({ page }) => {
   const search = page.getByRole('textbox', { name: 'Explorar coleções' })
-  if (!(await search.isVisible())) {
+  // Mobile displays the search field directly; only desktop uses the header toggle.
+  if ((page.viewportSize()?.width ?? 1440) >= 768) {
     await page.getByRole('button', { name: 'Buscar NFTs' }).click()
   }
+  await expect(search).toBeVisible()
   await search.fill('Emerald')
   await search.press('Enter')
   await expect(page).toHaveURL(/q=Emerald/)
