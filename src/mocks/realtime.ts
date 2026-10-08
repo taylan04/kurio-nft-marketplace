@@ -2,7 +2,9 @@ import { ws } from 'msw'
 import { toSocketIo } from '@mswjs/socket.io-binding'
 import type { RealtimeEnvelope } from '@/types/domain'
 
-const socketServer = ws.link('wss://kurio.mock/socket.io/')
+// MSW normalizes Socket.IO connections by removing the /socket.io/ prefix
+// before matching WebSocket handlers. The predicate must match the origin.
+const socketServer = ws.link('wss://kurio.mock')
 
 type SocketIoConnection = ReturnType<typeof toSocketIo>
 

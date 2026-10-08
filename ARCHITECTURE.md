@@ -45,7 +45,7 @@ O checkout cria uma chave com `crypto.randomUUID()`. O mock de pedidos guarda a 
 
 ## Tempo real
 
-O app é importado somente após `worker.start()` no `main.tsx`. Isso é intencional: o Socket.IO precisa capturar o `WebSocket` já interceptado pelo MSW.
+O app é importado somente após `worker.start()` no `main.tsx`. Isso é intencional: o Socket.IO precisa capturar o `WebSocket` já interceptado pelo MSW. O endpoint real do cliente é `wss://kurio.mock/socket.io/`, mas o handler usa `ws.link('wss://kurio.mock')`, pois o MSW remove o prefixo `/socket.io/` durante o reconhecimento do WebSocket. Usar o prefixo também no handler impediria a conexão.
 
 Eventos:
 
