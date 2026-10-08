@@ -12,7 +12,7 @@ async function setScenario(page: Page, data: Record<string, unknown>) {
 async function preparePurchase(page: Page) {
   await page.goto('/login')
   await page.getByLabel('E-mail').fill('collector@kurio.test')
-  await page.getByLabel('Senha').fill('12345678')
+  await page.getByLabel('Senha', { exact: true }).fill('12345678')
   await page.getByRole('button', { name: 'Entrar', exact: true }).click()
   await expect(page).toHaveURL(/\/$/)
 
