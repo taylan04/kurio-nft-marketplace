@@ -5,3 +5,4 @@ test-results
 .lighthouseci
 .env
 .DS_Store
+.lighthouseci-desktop/

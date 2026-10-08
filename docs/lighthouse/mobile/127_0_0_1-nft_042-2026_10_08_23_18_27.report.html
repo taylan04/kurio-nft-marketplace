@@ -1,0 +1,942 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Mobile — Detalhe do NFT — Execução 2</title><style>
+*{box-sizing:border-box}body{margin:0;background:#f6f7fb;color:#1f2937;font:15px/1.65 system-ui,Arial,sans-serif}
+main{max-width:1150px;padding:28px 22px 70px;margin:auto}
+h1{font-size:29px;line-height:1.2}h2{margin-top:36px;font-size:21px}
+a{color:#2852aa;overflow-wrap:anywhere}.muted,small{color:#657181}.eyebrow{font-size:12px;font-weight:bold;letter-spacing:1.2px;text-transform:uppercase;color:#2852aa}
+.box,.score,.metric,details.audit{background:#fff;border-radius:12px;border:1px solid #e0e5ed;padding:17px}
+.box{margin:16px 0}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}
+.score strong{display:block;font-size:29px}.score span,.metric span{display:block;font-size:13px;color:#637087}
+.good{color:#167342}.low{color:#b26c06}.metric strong{display:block;font-size:22px}
+details.audit{margin:9px 0;padding:13px 16px}details.audit summary{cursor:pointer;font-weight:600}
+pre{white-space:pre-wrap;word-break:break-word;max-height:240px;overflow:auto;font-size:12px;background:#f5f7fa;padding:11px}
+table{width:100%;border-collapse:collapse;background:#fff;min-width:600px}th,td{padding:12px;text-align:left;border-bottom:1px solid #e4e9f0}th{background:#eff3f8;font-size:13px}
+.scroll{overflow:auto;border-radius:11px;border:1px solid #e4e9f0}.note{border-left:4px solid #2852aa;padding:15px;background:white;border-radius:8px}
+.preview{max-height:240px;max-width:190px;object-fit:contain;float:right;margin-left:15px}
+@media(max-width:680px){.grid{grid-template-columns:repeat(2,1fr)}.preview{float:none;display:block;margin:10px 0}}
+</style></head><body><main><a href="../index.html">← Todos os relatórios</a><p class="eyebrow">Kurio NFT Marketplace · Lighthouse 12.6.1</p><h1>Mobile — Detalhe do NFT — Execução 2</h1><img class="preview" src="data:image/jpeg;base64,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" alt="Captura da página analisada" /><p><strong>Página:</strong> http://127.0.0.1:4173/nft/042</p><p class="muted">Medição de 2026-10-08T23:18:27.175Z</p><p><a href="127_0_0_1-nft_042-2026_10_08_23_18_27.report.json">Ver JSON original completo</a></p><p class="note"><strong>Sobre este HTML:</strong> versão legível produzida a partir do JSON original. O relatório HTML nativo emitido pelo Lighthouse CI pode ser encontrado na pasta local .lighthouseci do seu computador.</p><h2>Pontuações</h2><div class="grid"><div class="score"><strong class="low">88</strong><span>Performance · meta 90</span></div><div class="score"><strong class="good">100</strong><span>Acessibilidade · meta 95</span></div><div class="score"><strong class="good">96</strong><span>Boas práticas · meta 95</span></div><div class="score"><strong class="good">92</strong><span>SEO · meta 90</span></div></div><h2>Métricas principais</h2><div class="grid"><div class="metric"><strong>3.20 s</strong><span>LCP</span></div><div class="metric"><strong>0.0003</strong><span>CLS</span></div><div class="metric"><strong>219 ms</strong><span>TBT</span></div><div class="metric"><strong>1.85 s</strong><span>FCP</span></div></div><h2>Diagnósticos</h2><p>Expanda os itens para consultar os apontamentos do Lighthouse. Informações completas, sem cortes, estão no JSON original.</p><h2>Performance</h2><details class="audit"><summary>LCP request discovery — 0/100</summary><p>Optimize LCP by making the LCP image discoverable from the HTML immediately, and avoiding lazy-loading</p><p><strong></strong></p><details><summary>Detalhes (2 registros)</summary><pre>[
+  {
+    &quot;type&quot;: &quot;checklist&quot;,
+    &quot;items&quot;: {
+      &quot;priorityHinted&quot;: {
+        &quot;label&quot;: &quot;fetchpriority=high should be applied&quot;,
+        &quot;value&quot;: false
+      },
+      &quot;requestDiscoverable&quot;: {
+        &quot;label&quot;: &quot;Request is discoverable in initial document&quot;,
+        &quot;value&quot;: false
+      },
+      &quot;eagerlyLoaded&quot;: {
+        &quot;label&quot;: &quot;lazy load not applied&quot;,
+        &quot;value&quot;: true
+      }
+    }
+  },
+  {
+    &quot;type&quot;: &quot;node&quot;,
+    &quot;lhId&quot;: &quot;page-0-IMG&quot;,
+    &quot;path&quot;: &quot;1,HTML,1,BODY,0,DIV,0,DIV,0,ARTICLE,1,DIV,0,IMG&quot;,
+    &quot;selector&quot;: &quot;div.min-h-screen &gt; article.mx-auto &gt; div.mx-3 &gt; img.aspect-square&quot;,
+    &quot;boundingRect&quot;: {
+      &quot;top&quot;: 66,
+      &quot;bottom&quot;: 422,
+      &quot;left&quot;: 28,
+      &quot;right&quot;: 384,
+      &quot;width&quot;: 356,
+      &quot;height&quot;: 356
+    },
+    &quot;snippet&quot;: &quot;&lt;img alt=\&quot;Emerald Ape #042\&quot; class=\&quot;aspect-square w-full object-cover object-top\&quot; src=\&quot;/nft-emerald.webp\&quot;&gt;&quot;,
+    &quot;nodeLabel&quot;: &quot;Emerald Ape #042&quot;
+  }
+]</pre></details><small>ID: lcp-discovery-insight</small></details><details class="audit"><summary>Network dependency tree — 0/100</summary><p>Avoid chaining critical requests by reducing the length of chains, reducing the download size of resources, or deferring the download of unnecessary resources to improve page load.</p><p><strong></strong></p><small>ID: network-dependency-tree-insight</small></details><details class="audit"><summary>Render blocking requests — 0/100</summary><p>Requests are blocking the page&#x27;s initial render, which may delay LCP. Deferring or inlining can move these network requests out of the critical path.</p><p><strong></strong></p><details><summary>Detalhes (1 registros)</summary><pre>[
+  {
+    &quot;url&quot;: &quot;http://127.0.0.1:4173/assets/index-Cnmf7zVN.css&quot;,
+    &quot;totalBytes&quot;: 10515,
+    &quot;wastedMs&quot;: 159
+  }
+]</pre></details><small>ID: render-blocking-insight</small></details><details class="audit"><summary>Eliminate render-blocking resources — 0/100</summary><p>Resources are blocking the first paint of your page. Consider delivering critical JS/CSS inline and deferring all non-critical JS/styles. Learn how to eliminate render-blocking resources.</p><p><strong>Est savings of 150 ms</strong></p><details><summary>Detalhes (1 registros)</summary><pre>[
+  {
+    &quot;url&quot;: &quot;http://127.0.0.1:4173/assets/index-Cnmf7zVN.css&quot;,
+    &quot;totalBytes&quot;: 10515,
+    &quot;wastedMs&quot;: 185
+  }
+]</pre></details><small>ID: render-blocking-resources</small></details><details class="audit"><summary>Reduce unused JavaScript — 0/100</summary><p>Reduce unused JavaScript and defer loading scripts until they are required to decrease bytes consumed by network activity. Learn how to reduce unused JavaScript.</p><p><strong>Est savings of 69 KiB</strong></p><details><summary>Detalhes (2 registros)</summary><pre>[
+  {
+    &quot;url&quot;: &quot;http://127.0.0.1:4173/assets/browser-BU2e9hEz.js&quot;,
+    &quot;totalBytes&quot;: 103621,
+    &quot;wastedBytes&quot;: 36343,
+    &quot;wastedPercent&quot;: 35.07257624370222
+  },
+  {
+    &quot;url&quot;: &quot;http://127.0.0.1:4173/assets/index-B-QG8fpL.js&quot;,
+    &quot;totalBytes&quot;: 70356,
+    &quot;wastedBytes&quot;: 34122,
+    &quot;wastedPercent&quot;: 48.499490560916904
+  }
+]</pre></details><small>ID: unused-javascript</small></details><details class="audit"><summary>Preload Largest Contentful Paint image — 0/100</summary><p>If the LCP element is dynamically added to the page, you should preload the image in order to improve LCP. Learn more about preloading LCP elements.</p><p><strong>Est savings of 190 ms</strong></p><details><summary>Detalhes (1 registros)</summary><pre>[
+  {
+    &quot;node&quot;: {
+      &quot;type&quot;: &quot;node&quot;,
+      &quot;lhId&quot;: &quot;page-0-IMG&quot;,
+      &quot;path&quot;: &quot;1,HTML,1,BODY,0,DIV,0,DIV,0,ARTICLE,1,DIV,0,IMG&quot;,
+      &quot;selector&quot;: &quot;div.min-h-screen &gt; article.mx-auto &gt; div.mx-3 &gt; img.aspect-square&quot;,
+      &quot;boundingRect&quot;: {
+        &quot;top&quot;: 66,
+        &quot;bottom&quot;: 422,
+        &quot;left&quot;: 28,
+        &quot;right&quot;: 384,
+        &quot;width&quot;: 356,
+        &quot;height&quot;: 356
+      },
+      &quot;snippet&quot;: &quot;&lt;img alt=\&quot;Emerald Ape #042\&quot; class=\&quot;aspect-square w-full object-cover object-top\&quot; src=\&quot;/nft-emerald.webp\&quot;&gt;&quot;,
+      &quot;nodeLabel&quot;: &quot;Emerald Ape #042&quot;
+    },
+    &quot;url&quot;: &quot;http://127.0.0.1:4173/nft-emerald.webp&quot;,
+    &quot;wastedMs&quot;: 185.07384999999977
+  }
+]</pre></details><small>ID: prioritize-lcp-image</small></details><details class="audit"><summary>Largest Contentful Paint element — 0/100</summary><p>This is the largest contentful element painted within the viewport. Learn more about the Largest Contentful Paint element</p><p><strong>3,200 ms</strong></p><details><summary>Detalhes (2 registros)</summary><pre>[
+  {
+    &quot;type&quot;: &quot;table&quot;,
+    &quot;headings&quot;: [
+      {
+        &quot;key&quot;: &quot;node&quot;,
+        &quot;valueType&quot;: &quot;node&quot;,
+        &quot;label&quot;: &quot;Element&quot;
+      }
+    ],
+    &quot;items&quot;: [
+      {
+        &quot;node&quot;: {
+          &quot;type&quot;: &quot;node&quot;,
+          &quot;lhId&quot;: &quot;page-0-IMG&quot;,
+          &quot;path&quot;: &quot;1,HTML,1,BODY,0,DIV,0,DIV,0,ARTICLE,1,DIV,0,IMG&quot;,
+          &quot;selector&quot;: &quot;div.min-h-screen &gt; article.mx-auto &gt; div.mx-3 &gt; img.aspect-square&quot;,
+          &quot;boundingRect&quot;: {
+            &quot;top&quot;: 66,
+            &quot;bottom&quot;: 422,
+            &quot;left&quot;: 28,
+            &quot;right&quot;: 384,
+            &quot;width&quot;: 356,
+            &quot;height&quot;: 356
+          },
+          &quot;snippet&quot;: &quot;&lt;img alt=\&quot;Emerald Ape #042\&quot; class=\&quot;aspect-square w-full object-cover object-top\&quot; src=\&quot;/nft-emerald.webp\&quot;&gt;&quot;,
+          &quot;nodeLabel&quot;: &quot;Emerald Ape #042&quot;
+        }
+      }
+    ]
+  },
+  {
+    &quot;type&quot;: &quot;table&quot;,
+    &quot;headings&quot;: [
+      {
+        &quot;key&quot;: &quot;phase&quot;,
+        &quot;valueType&quot;: &quot;text&quot;,
+        &quot;label&quot;: &quot;Phase&quot;
+      },
+      {
+        &quot;key&quot;: &quot;percent&quot;,
+        &quot;valueType&quot;: &quot;text&quot;,
+        &quot;label&quot;: &quot;% of LCP&quot;
+      },
+      {
+        &quot;key&quot;: &quot;timing&quot;,
+        &quot;valueType&quot;: &quot;ms&quot;,
+        &quot;label&quot;: &quot;Timing&quot;
+      }
+    ],
+    &quot;items&quot;: [
+      {
+        &quot;phase&quot;: &quot;TTFB&quot;,
+        &quot;timing&quot;: 485.07385,
+        &quot;percent&quot;: &quot;15%&quot;
+      },
+      {
+        &quot;phase&quot;: &quot;Load Delay&quot;,
+        &quot;timing&quot;: 1913.7282644772092,
+        &quot;percent&quot;: &quot;60%&quot;
+      },
+      {
+        &quot;phase&quot;: &quot;Load Time&quot;,
+        &quot;timing&quot;: 211.6202830699449,
+        &quot;percent&quot;: &quot;7%&quot;
+      },
+      {
+        &quot;phase&quot;: &quot;Render Delay&quot;,
+        &quot;timing&quot;: 590.9468524528456,
+        &quot;percent&quot;: &quot;18%&quot;
+      }
+    ]
+  }
+]</pre></details><small>ID: largest-contentful-paint-element</small></details><details class="audit"><summary>Page prevented back/forward cache restoration — 0/100</summary><p>Many navigations are performed by going back to a previous page, or forwards again. The back/forward cache (bfcache) can speed up these return navigations. Learn more about the bfcache</p><p><strong>1 failure reason</strong></p><details><summary>Detalhes (1 registros)</summary><pre>[
+  {
+    &quot;reason&quot;: &quot;ServiceWorker was unregistered while a page was in back/forward cache.&quot;,
+    &quot;failureType&quot;: &quot;Not actionable&quot;,
+    &quot;subItems&quot;: {
+      &quot;type&quot;: &quot;subitems&quot;,
+      &quot;items&quot;: [
+        {
+          &quot;frameUrl&quot;: &quot;http://127.0.0.1:4173/nft/042&quot;
+        }
+      ]
+    },
+    &quot;protocolReason&quot;: &quot;ServiceWorkerUnregistration&quot;
+  }
+]</pre></details><small>ID: bf-cache</small></details><details class="audit"><summary>Largest Contentful Paint — 72/100</summary><p>Largest Contentful Paint marks the time at which the largest text or image is painted. Learn more about the Largest Contentful Paint metric</p><p><strong>3.2 s</strong></p><small>ID: largest-contentful-paint</small></details><details class="audit"><summary>Max Potential First Input Delay — 87/100</summary><p>The maximum potential First Input Delay that your users could experience is the duration of the longest task. Learn more about the Maximum Potential First Input Delay metric.</p><p><strong>140 ms</strong></p><small>ID: max-potential-fid</small></details><details class="audit"><summary>First Contentful Paint — 88/100</summary><p>First Contentful Paint marks the time at which the first text or image is painted. Learn more about the First Contentful Paint metric.</p><p><strong>1.8 s</strong></p><small>ID: first-contentful-paint</small></details><details class="audit"><summary>Total Blocking Time — 88/100</summary><p>Sum of all time periods between FCP and Time to Interactive, when task length exceeded 50ms, expressed in milliseconds. Learn more about the Total Blocking Time metric.</p><p><strong>220 ms</strong></p><small>ID: total-blocking-time</small></details><details class="audit"><summary>Time to Interactive — 94/100</summary><p>Time to Interactive is the amount of time it takes for the page to become fully interactive. Learn more about the Time to Interactive metric.</p><p><strong>3.2 s</strong></p><small>ID: interactive</small></details><details class="audit"><summary>Speed Index — 99/100</summary><p>Speed Index shows how quickly the contents of a page are visibly populated. Learn more about the Speed Index metric.</p><p><strong>2.1 s</strong></p><small>ID: speed-index</small></details><details class="audit"><summary>Cumulative Layout Shift — 100/100</summary><p>Cumulative Layout Shift measures the movement of visible elements within the viewport. Learn more about the Cumulative Layout Shift metric.</p><p><strong>0</strong></p><details><summary>Detalhes (1 registros)</summary><pre>[
+  {
+    &quot;cumulativeLayoutShiftMainFrame&quot;: 0.0002672491876178342,
+    &quot;newEngineResult&quot;: {
+      &quot;cumulativeLayoutShift&quot;: 0.0002672491876178342,
+      &quot;cumulativeLayoutShiftMainFrame&quot;: 0.0002672491876178342
+    },
+    &quot;newEngineResultDiffered&quot;: false
+  }
+]</pre></details><small>ID: cumulative-layout-shift</small></details><details class="audit"><summary>Layout shift culprits — 100/100</summary><p>Layout shifts occur when elements move absent any user interaction. Investigate the causes of layout shifts, such as elements being added, removed, or their fonts changing as the page loads.</p><p><strong></strong></p><details><summary>Detalhes (1 registros)</summary><pre>[
+  {
+    &quot;type&quot;: &quot;table&quot;,
+    &quot;headings&quot;: [
+      {
+        &quot;key&quot;: &quot;node&quot;,
+        &quot;valueType&quot;: &quot;node&quot;,
+        &quot;subItemsHeading&quot;: {
+          &quot;key&quot;: &quot;extra&quot;
+        },
+        &quot;label&quot;: &quot;Element&quot;
+      },
+      {
+        &quot;key&quot;: &quot;score&quot;,
+        &quot;valueType&quot;: &quot;numeric&quot;,
+        &quot;subItemsHeading&quot;: {
+          &quot;key&quot;: &quot;cause&quot;,
+          &quot;valueType&quot;: &quot;text&quot;
+        },
+        &quot;granularity&quot;: 0.001,
+        &quot;label&quot;: &quot;Layout shift score&quot;
+      }
+    ],
+    &quot;items&quot;: [
+      {
+        &quot;node&quot;: {
+          &quot;type&quot;: &quot;text&quot;,
+          &quot;value&quot;: &quot;Total&quot;
+        },
+        &quot;score&quot;: 0.0002672491876178342
+      },
+      {
+        &quot;node&quot;: {
+          &quot;type&quot;: &quot;node&quot;,
+          &quot;lhId&quot;: &quot;page-1-BUTTON&quot;,
+          &quot;path&quot;: &quot;1,HTML,1,BODY,0,DIV,0,DIV,1,FOOTER,1,DIV,0,BUTTON&quot;,
+          &quot;selector&quot;: &quot;div.min-h-screen &gt; footer.fixed &gt; div.mt-5 &gt; button.h-[60px]&quot;,
+          &quot;boundingRect&quot;: {
+            &quot;top&quot;: 729,
+            &quot;bottom&quot;: 789,
+            &quot;left&quot;: 24,
+            &quot;right&quot;: 220,
+            &quot;width&quot;: 196,
+            &quot;height&quot;: 60
+          },
+          &quot;snippet&quot;: &quot;&lt;button type=\&quot;button\&quot; class=\&quot;h-[60px] w-[196px] shrink-0 rounded-full bg-gradient-to-r from-[#d99357] t…\&quot;&gt;&quot;,
+          &quot;nodeLabel&quot;: &quot;Comprar NFT&quot;
+        },
+        &quot;score&quot;: 0.0002672491876178342,
+        &quot;subItems&quot;: {
+          &quot;type&quot;: &quot;subitems&quot;,
+          &quot;items&quot;: [
+            {
+              &quot;extra&quot;: {
+                &quot;type&quot;: &quot;url&quot;,
+                &quot;value&quot;: &quot;http://127.0.0.1:4173/assets/roboto-mono-latin-700-normal-foxDnrFi.woff2&quot;
+              },
+              &quot;cause&quot;: &quot;Font request&quot;
+            }
+          ]
+        }
+      }
+    ]
+  }
+]</pre></details><small>ID: cls-culprits-insight</small></details><details class="audit"><summary>Document request latency — 100/100</summary><p>Your first network request is the most important.  Reduce its latency by avoiding redirects, ensuring a fast server response, and enabling text compression.</p><p><strong></strong></p><small>ID: document-latency-insight</small></details><details class="audit"><summary>Optimize DOM size — 100/100</summary><p>A large DOM can increase the duration of style calculations and layout reflows, impacting page responsiveness. A large DOM will also increase memory usage. Learn how to avoid an excessive DOM size.</p><p><strong></strong></p><details><summary>Detalhes (3 registros)</summary><pre>[
+  {
+    &quot;statistic&quot;: &quot;Total elements&quot;,
+    &quot;value&quot;: {
+      &quot;type&quot;: &quot;numeric&quot;,
+      &quot;granularity&quot;: 1,
+      &quot;value&quot;: 57
+    }
+  },
+  {
+    &quot;statistic&quot;: &quot;Most children&quot;,
+    &quot;node&quot;: {
+      &quot;type&quot;: &quot;node&quot;,
+      &quot;lhId&quot;: &quot;page-7-SECTION&quot;,
+      &quot;path&quot;: &quot;1,HTML,1,BODY,0,DIV,0,DIV,0,ARTICLE,2,SECTION&quot;,
+      &quot;selector&quot;: &quot;div#root &gt; div.min-h-screen &gt; article.mx-auto &gt; section.relative&quot;,
+      &quot;boundingRect&quot;: {
+        &quot;top&quot;: 382,
+        &quot;bottom&quot;: 891,
+        &quot;left&quot;: 0,
+        &quot;right&quot;: 412,
+        &quot;width&quot;: 412,
+        &quot;height&quot;: 509
+      },
+      &quot;snippet&quot;: &quot;&lt;section class=\&quot;relative z-10 -mx-4 -mt-10 rounded-t-3xl bg-[#241612] px-6 pb-48 pt-[44px]\&quot;&gt;&quot;,
+      &quot;nodeLabel&quot;: &quot;Emerald Ape #042\n4.8\n(19)\n\nUm colecionável digital 1/50 finalizado à mão da col…&quot;
+    },
+    &quot;value&quot;: {
+      &quot;type&quot;: &quot;numeric&quot;,
+      &quot;granularity&quot;: 1,
+      &quot;value&quot;: 5
+    }
+  },
+  {
+    &quot;statistic&quot;: &quot;DOM depth&quot;,
+    &quot;node&quot;: {
+      &quot;type&quot;: &quot;node&quot;,
+      &quot;lhId&quot;: &quot;page-8-path&quot;,
+      &quot;path&quot;: &quot;1,HTML,1,BODY,0,DIV,0,DIV,0,ARTICLE,2,SECTION,0,DIV,1,SPAN,0,svg,0,path&quot;,
+      &quot;selector&quot;: &quot;div.flex &gt; span.flex &gt; svg.lucide &gt; path&quot;,
+      &quot;boundingRect&quot;: {
+        &quot;top&quot;: 433,
+        &quot;bottom&quot;: 441,
+        &quot;left&quot;: 315,
+        &quot;right&quot;: 324,
+        &quot;width&quot;: 9,
+        &quot;height&quot;: 9
+      },
+      &quot;snippet&quot;: &quot;&lt;path d=\&quot;M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5…\&quot;&gt;&quot;,
+      &quot;nodeLabel&quot;: &quot;div.flex &gt; span.flex &gt; svg.lucide &gt; path&quot;
+    },
+    &quot;value&quot;: {
+      &quot;type&quot;: &quot;numeric&quot;,
+      &quot;granularity&quot;: 1,
+      &quot;value&quot;: 9
+    }
+  }
+]</pre></details><small>ID: dom-size-insight</small></details><details class="audit"><summary>Forced reflow — 100/100</summary><p>Many APIs, typically reading layout geometry, force the rendering engine to pause script execution in order to calculate the style and layout. Learn more about forced reflow and its mitigations.</p><p><strong></strong></p><details><summary>Detalhes (1 registros)</summary><pre>[
+  {
+    &quot;type&quot;: &quot;table&quot;,
+    &quot;headings&quot;: [],
+    &quot;items&quot;: []
+  }
+]</pre></details><small>ID: forced-reflow-insight</small></details><details class="audit"><summary>LCP by phase — 100/100</summary><p>Each phase has specific improvement strategies. Ideally, most of the LCP time should be spent on loading the resources, not within delays.</p><p><strong></strong></p><details><summary>Detalhes (2 registros)</summary><pre>[
+  {
+    &quot;type&quot;: &quot;table&quot;,
+    &quot;headings&quot;: [
+      {
+        &quot;key&quot;: &quot;label&quot;,
+        &quot;valueType&quot;: &quot;text&quot;,
+        &quot;label&quot;: &quot;Phase&quot;
+      },
+      {
+        &quot;key&quot;: &quot;duration&quot;,
+        &quot;valueType&quot;: &quot;ms&quot;,
+        &quot;label&quot;: &quot;Duration&quot;
+      }
+    ],
+    &quot;items&quot;: [
+      {
+        &quot;phase&quot;: &quot;timeToFirstByte&quot;,
+        &quot;label&quot;: &quot;Time to first byte&quot;,
+        &quot;duration&quot;: 6.459000122070313
+      },
+      {
+        &quot;phase&quot;: &quot;resourceLoadDelay&quot;,
+        &quot;label&quot;: &quot;Resource load delay&quot;,
+        &quot;duration&quot;: 672.5059998779298
+      },
+      {
+        &quot;phase&quot;: &quot;resourceLoadDuration&quot;,
+        &quot;label&quot;: &quot;Resource load duration&quot;,
+        &quot;duration&quot;: 60.517999999999915
+      },
+      {
+        &quot;phase&quot;: &quot;elementRenderDelay&quot;,
+        &quot;label&quot;: &quot;Element render delay&quot;,
+        &quot;duration&quot;: 167.404
+      }
+    ]
+  },
+  {
+    &quot;type&quot;: &quot;node&quot;,
+    &quot;lhId&quot;: &quot;page-0-IMG&quot;,
+    &quot;path&quot;: &quot;1,HTML,1,BODY,0,DIV,0,DIV,0,ARTICLE,1,DIV,0,IMG&quot;,
+    &quot;selector&quot;: &quot;div.min-h-screen &gt; article.mx-auto &gt; div.mx-3 &gt; img.aspect-square&quot;,
+    &quot;boundingRect&quot;: {
+      &quot;top&quot;: 66,
+      &quot;bottom&quot;: 422,
+      &quot;left&quot;: 28,
+      &quot;right&quot;: 384,
+      &quot;width&quot;: 356,
+      &quot;height&quot;: 356
+    },
+    &quot;snippet&quot;: &quot;&lt;img alt=\&quot;Emerald Ape #042\&quot; class=\&quot;aspect-square w-full object-cover object-top\&quot; src=\&quot;/nft-emerald.webp\&quot;&gt;&quot;,
+    &quot;nodeLabel&quot;: &quot;Emerald Ape #042&quot;
+  }
+]</pre></details><small>ID: lcp-phases-insight</small></details><details class="audit"><summary>Optimize viewport for mobile — 100/100</summary><p>Tap interactions may be delayed by up to 300 ms if the viewport is not optimized for mobile.</p><p><strong></strong></p><details><summary>Detalhes (1 registros)</summary><pre>[
+  {
+    &quot;node&quot;: {
+      &quot;type&quot;: &quot;node&quot;,
+      &quot;lhId&quot;: &quot;page-6-META&quot;,
+      &quot;path&quot;: &quot;1,HTML,0,HEAD,1,META&quot;,
+      &quot;selector&quot;: &quot;head &gt; meta&quot;,
+      &quot;boundingRect&quot;: {
+        &quot;top&quot;: 0,
+        &quot;bottom&quot;: 0,
+        &quot;left&quot;: 0,
+        &quot;right&quot;: 0,
+        &quot;width&quot;: 0,
+        &quot;height&quot;: 0
+      },
+      &quot;snippet&quot;: &quot;&lt;meta name=\&quot;viewport\&quot; content=\&quot;width=device-width, initial-scale=1.0\&quot;&gt;&quot;,
+      &quot;nodeLabel&quot;: &quot;head &gt; meta&quot;
+    }
+  }
+]</pre></details><small>ID: viewport-insight</small></details><details class="audit"><summary>Properly size images — 100/100</summary><p>Serve images that are appropriately-sized to save cellular data and improve load time. Learn how to size images.</p><p><strong></strong></p><small>ID: uses-responsive-images</small></details><details class="audit"><summary>Defer offscreen images — 100/100</summary><p>Consider lazy-loading offscreen and hidden images after all critical resources have finished loading to lower time to interactive. Learn how to defer offscreen images.</p><p><strong></strong></p><small>ID: offscreen-images</small></details><details class="audit"><summary>Minify CSS — 100/100</summary><p>Minifying CSS files can reduce network payload sizes. Learn how to minify CSS.</p><p><strong></strong></p><small>ID: unminified-css</small></details><details class="audit"><summary>Minify JavaScript — 100/100</summary><p>Minifying JavaScript files can reduce payload sizes and script parse time. Learn how to minify JavaScript.</p><p><strong></strong></p><small>ID: unminified-javascript</small></details><details class="audit"><summary>Reduce unused CSS — 100/100</summary><p>Reduce unused rules from stylesheets and defer CSS not used for above-the-fold content to decrease bytes consumed by network activity. Learn how to reduce unused CSS.</p><p><strong></strong></p><small>ID: unused-css-rules</small></details><details class="audit"><summary>Efficiently encode images — 100/100</summary><p>Optimized images load faster and consume less cellular data. Learn how to efficiently encode images.</p><p><strong></strong></p><small>ID: uses-optimized-images</small></details><details class="audit"><summary>Serve images in next-gen formats — 100/100</summary><p>Image formats like WebP and AVIF often provide better compression than PNG or JPEG, which means faster downloads and less data consumption. Learn more about modern image formats.</p><p><strong></strong></p><small>ID: modern-image-formats</small></details><details class="audit"><summary>Enable text compression — 100/100</summary><p>Text-based resources should be served with compression (gzip, deflate or brotli) to minimize total network bytes. Learn more about text compression.</p><p><strong></strong></p><small>ID: uses-text-compression</small></details><details class="audit"><summary>Preconnect to required origins — 100/100</summary><p>Consider adding preconnect or dns-prefetch resource hints to establish early connections to important third-party origins. Learn how to preconnect to required origins.</p><p><strong></strong></p><small>ID: uses-rel-preconnect</small></details><details class="audit"><summary>Initial server response time was short — 100/100</summary><p>Keep the server response time for the main document short because all other requests depend on it. Learn more about the Time to First Byte metric.</p><p><strong>Root document took 0 ms</strong></p><details><summary>Detalhes (1 registros)</summary><pre>[
+  {
+    &quot;url&quot;: &quot;http://127.0.0.1:4173/nft/042&quot;,
+    &quot;responseTime&quot;: 3.191
+  }
+]</pre></details><small>ID: server-response-time</small></details><details class="audit"><summary>Avoid multiple page redirects — 100/100</summary><p>Redirects introduce additional delays before the page can be loaded. Learn how to avoid page redirects.</p><p><strong></strong></p><small>ID: redirects</small></details><details class="audit"><summary>Use HTTP/2 — 100/100</summary><p>HTTP/2 offers many benefits over HTTP/1.1, including binary headers and multiplexing. Learn more about HTTP/2.</p><p><strong></strong></p><small>ID: uses-http2</small></details><details class="audit"><summary>Use video formats for animated content — 100/100</summary><p>Large GIFs are inefficient for delivering animated content. Consider using MPEG4/WebM videos for animations and PNG/WebP for static images instead of GIF to save network bytes. Learn more about efficient video formats</p><p><strong></strong></p><small>ID: efficient-animated-content</small></details><details class="audit"><summary>Remove duplicate modules in JavaScript bundles — 100/100</summary><p>Remove large, duplicate JavaScript modules from bundles to reduce unnecessary bytes consumed by network activity. </p><p><strong></strong></p><small>ID: duplicated-javascript</small></details><details class="audit"><summary>Avoid serving legacy JavaScript to modern browsers — 100/100</summary><p>Polyfills and transforms enable legacy browsers to use new JavaScript features. However, many aren&#x27;t necessary for modern browsers. Consider modifying your JavaScript build process to not transpile Baseline features, unless you know you must support legacy browsers. Learn why most sites can deploy ES6+ code without transpiling</p><p><strong></strong></p><small>ID: legacy-javascript</small></details><details class="audit"><summary>Avoids enormous network payloads — 100/100</summary><p>Large network payloads cost users real money and are highly correlated with long load times. Learn how to reduce payload sizes.</p><p><strong>Total size was 199 KiB</strong></p><details><summary>Detalhes (6 registros)</summary><pre>[
+  {
+    &quot;url&quot;: &quot;http://127.0.0.1:4173/assets/browser-BU2e9hEz.js&quot;,
+    &quot;totalBytes&quot;: 104514
+  },
+  {
+    &quot;url&quot;: &quot;http://127.0.0.1:4173/assets/index-B-QG8fpL.js&quot;,
+    &quot;totalBytes&quot;: 70711
+  },
+  {
+    &quot;url&quot;: &quot;http://127.0.0.1:4173/assets/index-DUyPPCLN.js&quot;,
+    &quot;totalBytes&quot;: 17484
+  },
+  {
+    &quot;url&quot;: &quot;http://127.0.0.1:4173/assets/index-Cnmf7zVN.css&quot;,
+    &quot;totalBytes&quot;: 10515
+  },
+  {
+    &quot;url&quot;: &quot;http://127.0.0.1:4173/nft/042&quot;,
+    &quot;totalBytes&quot;: 792
+  }
+]</pre></details><small>ID: total-byte-weight</small></details><details class="audit"><summary>Uses efficient cache policy on static assets — 100/100</summary><p>A long cache lifetime can speed up repeat visits to your page. Learn more about efficient cache policies.</p><p><strong>0 resources found</strong></p><small>ID: uses-long-cache-ttl</small></details><details class="audit"><summary>Avoids an excessive DOM size — 100/100</summary><p>A large DOM will increase memory usage, cause longer style calculations, and produce costly layout reflows. Learn how to avoid an excessive DOM size.</p><p><strong>55 elements</strong></p><details><summary>Detalhes (3 registros)</summary><pre>[
+  {
+    &quot;statistic&quot;: &quot;Total DOM Elements&quot;,
+    &quot;value&quot;: {
+      &quot;type&quot;: &quot;numeric&quot;,
+      &quot;granularity&quot;: 1,
+      &quot;value&quot;: 55
+    }
+  },
+  {
+    &quot;node&quot;: {
+      &quot;type&quot;: &quot;node&quot;,
+      &quot;lhId&quot;: &quot;1-2-path&quot;,
+      &quot;path&quot;: &quot;1,HTML,1,BODY,0,DIV,0,DIV,0,ARTICLE,2,SECTION,0,DIV,1,SPAN,0,svg,0,path&quot;,
+      &quot;selector&quot;: &quot;div.flex &gt; span.flex &gt; svg.lucide &gt; path&quot;,
+      &quot;boundingRect&quot;: {
+        &quot;top&quot;: 433,
+        &quot;bottom&quot;: 441,
+        &quot;left&quot;: 315,
+        &quot;right&quot;: 324,
+        &quot;width&quot;: 9,
+        &quot;height&quot;: 9
+      },
+      &quot;snippet&quot;: &quot;&lt;path d=\&quot;M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5…\&quot;&gt;&quot;,
+      &quot;nodeLabel&quot;: &quot;div.flex &gt; span.flex &gt; svg.lucide &gt; path&quot;
+    },
+    &quot;statistic&quot;: &quot;Maximum DOM Depth&quot;,
+    &quot;value&quot;: {
+      &quot;type&quot;: &quot;numeric&quot;,
+      &quot;granularity&quot;: 1,
+      &quot;value&quot;: 9
+    }
+  },
+  {
+    &quot;node&quot;: {
+      &quot;type&quot;: &quot;node&quot;,
+      &quot;lhId&quot;: &quot;1-3-SECTION&quot;,
+      &quot;path&quot;: &quot;1,HTML,1,BODY,0,DIV,0,DIV,0,ARTICLE,2,SECTION&quot;,
+      &quot;selector&quot;: &quot;div#root &gt; div.min-h-screen &gt; article.mx-auto &gt; section.relative&quot;,
+      &quot;boundingRect&quot;: {
+        &quot;top&quot;: 382,
+        &quot;bottom&quot;: 891,
+        &quot;left&quot;: 0,
+        &quot;right&quot;: 412,
+        &quot;width&quot;: 412,
+        &quot;height&quot;: 509
+      },
+      &quot;snippet&quot;: &quot;&lt;section class=\&quot;relative z-10 -mx-4 -mt-10 rounded-t-3xl bg-[#241612] px-6 pb-48 pt-[44px]\&quot;&gt;&quot;,
+      &quot;nodeLabel&quot;: &quot;Emerald Ape #042\n4.8\n(19)\n\nUm colecionável digital 1/50 finalizado à mão da col…&quot;
+    },
+    &quot;statistic&quot;: &quot;Maximum Child Elements&quot;,
+    &quot;value&quot;: {
+      &quot;type&quot;: &quot;numeric&quot;,
+      &quot;granularity&quot;: 1,
+      &quot;value&quot;: 5
+    }
+  }
+]</pre></details><small>ID: dom-size</small></details><details class="audit"><summary>Avoid chaining critical requests — 100/100</summary><p>The Critical Request Chains below show you what resources are loaded with a high priority. Consider reducing the length of chains, reducing the download size of resources, or deferring the download of unnecessary resources to improve page load. Learn how to avoid chaining critical requests.</p><p><strong>4 chains found</strong></p><small>ID: critical-request-chains</small></details><details class="audit"><summary>JavaScript execution time — 100/100</summary><p>Consider reducing the time spent parsing, compiling, and executing JS. You may find delivering smaller JS payloads helps with this. Learn how to reduce Javascript execution time.</p><p><strong>0.8 s</strong></p><details><summary>Detalhes (5 registros)</summary><pre>[
+  {
+    &quot;url&quot;: &quot;http://127.0.0.1:4173/assets/index-B-QG8fpL.js&quot;,
+    &quot;total&quot;: 363.42800000000034,
+    &quot;scripting&quot;: 292.01600000000036,
+    &quot;scriptParseCompile&quot;: 0.412
+  },
+  {
+    &quot;url&quot;: &quot;Unattributable&quot;,
+    &quot;total&quot;: 339.8040000000005,
+    &quot;scripting&quot;: 121.92400000000008,
+    &quot;scriptParseCompile&quot;: 0
+  },
+  {
+    &quot;url&quot;: &quot;http://127.0.0.1:4173/assets/browser-BU2e9hEz.js&quot;,
+    &quot;total&quot;: 339.7960000000002,
+    &quot;scripting&quot;: 323.8560000000002,
+    &quot;scriptParseCompile&quot;: 2.336
+  },
+  {
+    &quot;url&quot;: &quot;http://127.0.0.1:4173/nft/042&quot;,
+    &quot;total&quot;: 328.84000000000003,
+    &quot;scripting&quot;: 36.724000000000004,
+    &quot;scriptParseCompile&quot;: 0.532
+  },
+  {
+    &quot;url&quot;: &quot;http://127.0.0.1:4173/assets/app-BaBWYAH8.js&quot;,
+    &quot;total&quot;: 69.09200000000003,
+    &quot;scripting&quot;: 55.17200000000003,
+    &quot;scriptParseCompile&quot;: 3.472
+  }
+]</pre></details><small>ID: bootup-time</small></details><details class="audit"><summary>Minimizes main-thread work — 100/100</summary><p>Consider reducing the time spent parsing, compiling and executing JS. You may find delivering smaller JS payloads helps with this. Learn how to minimize main-thread work</p><p><strong>1.5 s</strong></p><details><summary>Detalhes (6 registros)</summary><pre>[
+  {
+    &quot;group&quot;: &quot;scriptEvaluation&quot;,
+    &quot;groupLabel&quot;: &quot;Script Evaluation&quot;,
+    &quot;duration&quot;: 831.5359999999986
+  },
+  {
+    &quot;group&quot;: &quot;other&quot;,
+    &quot;groupLabel&quot;: &quot;Other&quot;,
+    &quot;duration&quot;: 342.08000000000044
+  },
+  {
+    &quot;group&quot;: &quot;styleLayout&quot;,
+    &quot;groupLabel&quot;: &quot;Style &amp; Layout&quot;,
+    &quot;duration&quot;: 249.83200000000002
+  },
+  {
+    &quot;group&quot;: &quot;paintCompositeRender&quot;,
+    &quot;groupLabel&quot;: &quot;Rendering&quot;,
+    &quot;duration&quot;: 14.279999999999998
+  },
+  {
+    &quot;group&quot;: &quot;parseHTML&quot;,
+    &quot;groupLabel&quot;: &quot;Parse HTML &amp; CSS&quot;,
+    &quot;duration&quot;: 9.416
+  }
+]</pre></details><small>ID: mainthread-work-breakdown</small></details><details class="audit"><summary>All text remains visible during webfont loads — 100/100</summary><p>Leverage the font-display CSS feature to ensure text is user-visible while webfonts are loading. Learn more about font-display.</p><p><strong></strong></p><small>ID: font-display</small></details><details class="audit"><summary>Largest Contentful Paint image was not lazily loaded — 100/100</summary><p>Above-the-fold images that are lazily loaded render later in the page lifecycle, which can delay the largest contentful paint. Learn more about optimal lazy loading.</p><p><strong></strong></p><details><summary>Detalhes (1 registros)</summary><pre>[
+  {
+    &quot;node&quot;: {
+      &quot;type&quot;: &quot;node&quot;,
+      &quot;lhId&quot;: &quot;1-4-IMG&quot;,
+      &quot;path&quot;: &quot;1,HTML,1,BODY,0,DIV,0,DIV,0,ARTICLE,1,DIV,0,IMG&quot;,
+      &quot;selector&quot;: &quot;div.min-h-screen &gt; article.mx-auto &gt; div.mx-3 &gt; img.aspect-square&quot;,
+      &quot;boundingRect&quot;: {
+        &quot;top&quot;: 66,
+        &quot;bottom&quot;: 422,
+        &quot;left&quot;: 28,
+        &quot;right&quot;: 384,
+        &quot;width&quot;: 356,
+        &quot;height&quot;: 356
+      },
+      &quot;snippet&quot;: &quot;&lt;img alt=\&quot;Emerald Ape #042\&quot; class=\&quot;aspect-square w-full object-cover object-top\&quot; src=\&quot;/nft-emerald.webp\&quot;&gt;&quot;,
+      &quot;nodeLabel&quot;: &quot;Emerald Ape #042&quot;
+    }
+  }
+]</pre></details><small>ID: lcp-lazy-loaded</small></details><details class="audit"><summary>Avoid large layout shifts — 100/100</summary><p>These are the largest layout shifts observed on the page. Each table item represents a single layout shift, and shows the element that shifted the most. Below each item are possible root causes that led to the layout shift. Some of these layout shifts may not be included in the CLS metric value due to windowing. Learn how to improve CLS</p><p><strong>1 layout shift found</strong></p><details><summary>Detalhes (1 registros)</summary><pre>[
+  {
+    &quot;node&quot;: {
+      &quot;type&quot;: &quot;node&quot;,
+      &quot;lhId&quot;: &quot;page-1-BUTTON&quot;,
+      &quot;path&quot;: &quot;1,HTML,1,BODY,0,DIV,0,DIV,1,FOOTER,1,DIV,0,BUTTON&quot;,
+      &quot;selector&quot;: &quot;div.min-h-screen &gt; footer.fixed &gt; div.mt-5 &gt; button.h-[60px]&quot;,
+      &quot;boundingRect&quot;: {
+        &quot;top&quot;: 729,
+        &quot;bottom&quot;: 789,
+        &quot;left&quot;: 24,
+        &quot;right&quot;: 220,
+        &quot;width&quot;: 196,
+        &quot;height&quot;: 60
+      },
+      &quot;snippet&quot;: &quot;&lt;button type=\&quot;button\&quot; class=\&quot;h-[60px] w-[196px] shrink-0 rounded-full bg-gradient-to-r from-[#d99357] t…\&quot;&gt;&quot;,
+      &quot;nodeLabel&quot;: &quot;Comprar NFT&quot;
+    },
+    &quot;score&quot;: 0.0002672491876178342,
+    &quot;subItems&quot;: {
+      &quot;type&quot;: &quot;subitems&quot;,
+      &quot;items&quot;: [
+        {
+          &quot;extra&quot;: {
+            &quot;type&quot;: &quot;url&quot;,
+            &quot;value&quot;: &quot;http://127.0.0.1:4173/assets/roboto-mono-latin-700-normal-foxDnrFi.woff2&quot;
+          },
+          &quot;cause&quot;: &quot;Web font loaded&quot;
+        }
+      ]
+    }
+  }
+]</pre></details><small>ID: layout-shifts</small></details><details class="audit"><summary>Uses passive listeners to improve scrolling performance — 100/100</summary><p>Consider marking your touch and wheel event listeners as passive to improve your page&#x27;s scroll performance. Learn more about adopting passive event listeners.</p><p><strong></strong></p><small>ID: uses-passive-event-listeners</small></details><details class="audit"><summary>Avoids `document.write()` — 100/100</summary><p>For users on slow connections, external scripts dynamically injected via document.write() can delay page load by tens of seconds. Learn how to avoid document.write().</p><p><strong></strong></p><small>ID: no-document-write</small></details><details class="audit"><summary>Avoid long main-thread tasks — 100/100</summary><p>Lists the longest tasks on the main thread, useful for identifying worst contributors to input delay. Learn how to avoid long main-thread tasks</p><p><strong>6 long tasks found</strong></p><details><summary>Detalhes (6 registros)</summary><pre>[
+  {
+    &quot;url&quot;: &quot;Unattributable&quot;,
+    &quot;duration&quot;: 144,
+    &quot;startTime&quot;: 646.07385
+  },
+  {
+    &quot;url&quot;: &quot;http://127.0.0.1:4173/assets/index-B-QG8fpL.js&quot;,
+    &quot;duration&quot;: 138,
+    &quot;startTime&quot;: 2975.2954
+  },
+  {
+    &quot;url&quot;: &quot;http://127.0.0.1:4173/assets/index-B-QG8fpL.js&quot;,
+    &quot;duration&quot;: 134,
+    &quot;startTime&quot;: 1758.1477
+  },
+  {
+    &quot;url&quot;: &quot;http://127.0.0.1:4173/assets/index-B-QG8fpL.js&quot;,
+    &quot;duration&quot;: 97,
+    &quot;startTime&quot;: 2878.2954
+  },
+  {
+    &quot;url&quot;: &quot;http://127.0.0.1:4173/assets/browser-BU2e9hEz.js&quot;,
+    &quot;duration&quot;: 92,
+    &quot;startTime&quot;: 2693.22155
+  }
+]</pre></details><small>ID: long-tasks</small></details><details class="audit"><summary>Image elements have explicit `width` and `height` — 100/100</summary><p>Set an explicit width and height on image elements to reduce layout shifts and improve CLS. Learn how to set image dimensions</p><p><strong></strong></p><small>ID: unsized-images</small></details><details class="audit"><summary>Has a `&lt;meta name=&quot;viewport&quot;&gt;` tag with `width` or `initial-scale` — 100/100</summary><p>A &lt;meta name=&quot;viewport&quot;&gt; not only optimizes your app for mobile screen sizes, but also prevents a 300 millisecond delay to user input. Learn more about using the viewport meta tag.</p><p><strong></strong></p><small>ID: viewport</small></details><details class="audit"><summary>Network Requests — 100/100</summary><p>Lists the network requests that were made during page load.</p><p><strong></strong></p><details><summary>Detalhes (14 registros)</summary><pre>[
+  {
+    &quot;url&quot;: &quot;http://127.0.0.1:4173/nft/042&quot;,
+    &quot;sessionTargetType&quot;: &quot;page&quot;,
+    &quot;protocol&quot;: &quot;http/1.1&quot;,
+    &quot;rendererStartTime&quot;: 0,
+    &quot;networkRequestTime&quot;: 1.033000111579895,
+    &quot;networkEndTime&quot;: 6.462000131607056,
+    &quot;finished&quot;: true,
+    &quot;transferSize&quot;: 792,
+    &quot;resourceSize&quot;: 542,
+    &quot;statusCode&quot;: 200,
+    &quot;mimeType&quot;: &quot;text/html&quot;,
+    &quot;resourceType&quot;: &quot;Document&quot;,
+    &quot;priority&quot;: &quot;VeryHigh&quot;,
+    &quot;experimentalFromMainFrame&quot;: true,
+    &quot;entity&quot;: &quot;127.0.0.1&quot;
+  },
+  {
+    &quot;url&quot;: &quot;http://127.0.0.1:4173/assets/index-B-QG8fpL.js&quot;,
+    &quot;sessionTargetType&quot;: &quot;page&quot;,
+    &quot;protocol&quot;: &quot;http/1.1&quot;,
+    &quot;rendererStartTime&quot;: 16.598000049591064,
+    &quot;networkRequestTime&quot;: 21.866999983787537,
+    &quot;networkEndTime&quot;: 43.259000062942505,
+    &quot;finished&quot;: true,
+    &quot;transferSize&quot;: 70711,
+    &quot;resourceSize&quot;: 224757,
+    &quot;statusCode&quot;: 200,
+    &quot;mimeType&quot;: &quot;text/javascript&quot;,
+    &quot;resourceType&quot;: &quot;Script&quot;,
+    &quot;priority&quot;: &quot;High&quot;,
+    &quot;experimentalFromMainFrame&quot;: true,
+    &quot;entity&quot;: &quot;127.0.0.1&quot;
+  },
+  {
+    &quot;url&quot;: &quot;http://127.0.0.1:4173/assets/index-Cnmf7zVN.css&quot;,
+    &quot;sessionTargetType&quot;: &quot;page&quot;,
+    &quot;protocol&quot;: &quot;http/1.1&quot;,
+    &quot;rendererStartTime&quot;: 16.943000078201294,
+    &quot;networkRequestTime&quot;: 22.847000002861023,
+    &quot;networkEndTime&quot;: 31.033000111579895,
+    &quot;finished&quot;: true,
+    &quot;transferSize&quot;: 10515,
+    &quot;resourceSize&quot;: 52098,
+    &quot;statusCode&quot;: 200,
+    &quot;mimeType&quot;: &quot;text/css&quot;,
+    &quot;resourceType&quot;: &quot;Stylesheet&quot;,
+    &quot;priority&quot;: &quot;VeryHigh&quot;,
+    &quot;experimentalFromMainFrame&quot;: true,
+    &quot;entity&quot;: &quot;127.0.0.1&quot;
+  },
+  {
+    &quot;url&quot;: &quot;http://127.0.0.1:4173/assets/browser-BU2e9hEz.js&quot;,
+    &quot;sessionTargetType&quot;: &quot;page&quot;,
+    &quot;protocol&quot;: &quot;http/1.1&quot;,
+    &quot;rendererStartTime&quot;: 64.93099999427795,
+    &quot;networkRequestTime&quot;: 65.5789999961853,
+    &quot;networkEndTime&quot;: 93.75100004673004,
+    &quot;finished&quot;: true,
+    &quot;transferSize&quot;: 104514,
+    &quot;resourceSize&quot;: 318622,
+    &quot;statusCode&quot;: 200,
+    &quot;mimeType&quot;: &quot;text/javascript&quot;,
+    &quot;resourceType&quot;: &quot;Script&quot;,
+    &quot;priority&quot;: &quot;High&quot;,
+    &quot;experimentalFromMainFrame&quot;: true,
+    &quot;entity&quot;: &quot;127.0.0.1&quot;
+  },
+  {
+    &quot;url&quot;: &quot;http://127.0.0.1:4173/assets/index-DUyPPCLN.js&quot;,
+    &quot;sessionTargetType&quot;: &quot;page&quot;,
+    &quot;protocol&quot;: &quot;http/1.1&quot;,
+    &quot;rendererStartTime&quot;: 65.32500004768372,
+    &quot;networkRequestTime&quot;: 65.96100008487701,
+    &quot;networkEndTime&quot;: 77.52999997138977,
+    &quot;finished&quot;: true,
+    &quot;transferSize&quot;: 17484,
+    &quot;resourceSize&quot;: 43785,
+    &quot;statusCode&quot;: 200,
+    &quot;mimeType&quot;: &quot;text/javascript&quot;,
+    &quot;resourceType&quot;: &quot;Script&quot;,
+    &quot;priority&quot;: &quot;High&quot;,
+    &quot;experimentalFromMainFrame&quot;: true,
+    &quot;entity&quot;: &quot;127.0.0.1&quot;
+  }
+]</pre></details><small>ID: network-requests</small></details><details class="audit"><summary>Network Round Trip Times — 100/100</summary><p>Network round trip times (RTT) have a large impact on performance. If the RTT to an origin is high, it&#x27;s an indication that servers closer to the user could improve performance. Learn more about the Round Trip Time.</p><p><strong>0 ms</strong></p><details><summary>Detalhes (1 registros)</summary><pre>[
+  {
+    &quot;origin&quot;: &quot;http://127.0.0.1:4173&quot;,
+    &quot;rtt&quot;: 0.16515
+  }
+]</pre></details><small>ID: network-rtt</small></details><details class="audit"><summary>Server Backend Latencies — 100/100</summary><p>Server latencies can impact web performance. If the server latency of an origin is high, it&#x27;s an indication the server is overloaded or has poor backend performance. Learn more about server response time.</p><p><strong>40 ms</strong></p><details><summary>Detalhes (1 registros)</summary><pre>[
+  {
+    &quot;origin&quot;: &quot;http://127.0.0.1:4173&quot;,
+    &quot;serverResponseTime&quot;: 35.07385000000001
+  }
+]</pre></details><small>ID: network-server-latency</small></details><details class="audit"><summary>Tasks — 100/100</summary><p>Lists the toplevel main thread tasks that executed during page load.</p><p><strong></strong></p><details><summary>Detalhes (14 registros)</summary><pre>[
+  {
+    &quot;duration&quot;: 8.017,
+    &quot;startTime&quot;: 10.267
+  },
+  {
+    &quot;duration&quot;: 7.765,
+    &quot;startTime&quot;: 50.873
+  },
+  {
+    &quot;duration&quot;: 9.489,
+    &quot;startTime&quot;: 58.651
+  },
+  {
+    &quot;duration&quot;: 36.066,
+    &quot;startTime&quot;: 104.787
+  },
+  {
+    &quot;duration&quot;: 22.898,
+    &quot;startTime&quot;: 212.731
+  }
+]</pre></details><small>ID: main-thread-tasks</small></details><details class="audit"><summary>Diagnostics — 100/100</summary><p>Collection of useful page vitals.</p><p><strong></strong></p><details><summary>Detalhes (1 registros)</summary><pre>[
+  {
+    &quot;numRequests&quot;: 14,
+    &quot;numScripts&quot;: 4,
+    &quot;numStylesheets&quot;: 1,
+    &quot;numFonts&quot;: 3,
+    &quot;numTasks&quot;: 510,
+    &quot;numTasksOver10ms&quot;: 7,
+    &quot;numTasksOver25ms&quot;: 4,
+    &quot;numTasksOver50ms&quot;: 0,
+    &quot;numTasksOver100ms&quot;: 0,
+    &quot;numTasksOver500ms&quot;: 0,
+    &quot;rtt&quot;: 0.16515,
+    &quot;throughput&quot;: 52973968.84580847,
+    &quot;maxRtt&quot;: 0.16515,
+    &quot;maxServerLatency&quot;: 35.07385000000001,
+    &quot;totalByteWeight&quot;: 204173,
+    &quot;totalTaskTime&quot;: 363.50800000000015,
+    &quot;mainDocumentTransferSize&quot;: 792
+  }
+]</pre></details><small>ID: diagnostics</small></details><details class="audit"><summary>Metrics — 100/100</summary><p>Collects all available metrics.</p><p><strong></strong></p><details><summary>Detalhes (2 registros)</summary><pre>[
+  {
+    &quot;firstContentfulPaint&quot;: 1849,
+    &quot;largestContentfulPaint&quot;: 3201,
+    &quot;interactive&quot;: 3201,
+    &quot;speedIndex&quot;: 2125,
+    &quot;totalBlockingTime&quot;: 219,
+    &quot;maxPotentialFID&quot;: 138,
+    &quot;cumulativeLayoutShift&quot;: 0.0002672491876178342,
+    &quot;cumulativeLayoutShiftMainFrame&quot;: 0.0002672491876178342,
+    &quot;lcpLoadStart&quot;: 2399,
+    &quot;lcpLoadEnd&quot;: 2610,
+    &quot;timeToFirstByte&quot;: 485,
+    &quot;observedTimeOrigin&quot;: 0,
+    &quot;observedTimeOriginTs&quot;: 744509901802,
+    &quot;observedNavigationStart&quot;: 0,
+    &quot;observedNavigationStartTs&quot;: 744509901802,
+    &quot;observedFirstPaint&quot;: 49,
+    &quot;observedFirstPaintTs&quot;: 744509950395,
+    &quot;observedFirstContentfulPaint&quot;: 390,
+    &quot;observedFirstContentfulPaintTs&quot;: 744510291997,
+    &quot;observedFirstContentfulPaintAllFrames&quot;: 390,
+    &quot;observedFirstContentfulPaintAllFramesTs&quot;: 744510291997,
+    &quot;observedLargestContentfulPaint&quot;: 907,
+    &quot;observedLargestContentfulPaintTs&quot;: 744510808689,
+    &quot;observedLargestContentfulPaintAllFrames&quot;: 907,
+    &quot;observedLargestContentfulPaintAllFramesTs&quot;: 744510808689,
+    &quot;observedTraceEnd&quot;: 3094,
+    &quot;observedTraceEndTs&quot;: 744512995863,
+    &quot;observedLoad&quot;: 68,
+    &quot;observedLoadTs&quot;: 744509969463,
+    &quot;observedDomContentLoaded&quot;: 67,
+    &quot;observedDomContentLoadedTs&quot;: 744509969210,
+    &quot;observedCumulativeLayoutShift&quot;: 0.0002672491876178342,
+    &quot;observedCumulativeLayoutShiftMainFrame&quot;: 0.0002672491876178342,
+    &quot;observedFirstVisualChange&quot;: 48,
+    &quot;observedFirstVisualChangeTs&quot;: 744509949802,
+    &quot;observedLastVisualChange&quot;: 908,
+    &quot;observedLastVisualChangeTs&quot;: 744510809802,
+    &quot;observedSpeedIndex&quot;: 824,
+    &quot;observedSpeedIndexTs&quot;: 744510726096
+  },
+  {
+    &quot;lcpInvalidated&quot;: false
+  }
+]</pre></details><small>ID: metrics</small></details><details class="audit"><summary>Screenshot Thumbnails — 100/100</summary><p>This is what the load of your site looked like.</p><p><strong></strong></p><details><summary>Detalhes (8 registros)</summary><pre>[
+  {
+    &quot;timing&quot;: 375,
+    &quot;timestamp&quot;: 744510276802,
+    &quot;data&quot;: &quot;data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAHyAPoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAj/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAL/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCZwELAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAf/Z&quot;
+  },
+  {
+    &quot;timing&quot;: 750,
+    &quot;timestamp&quot;: 744510651802,
+    &quot;data&quot;: &quot;data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAHyAPoDASIAAhEBAxEB/8QAGwABAAMAAwEAAAAAAAAAAAAAAAQGBwIDBQj/xAApEAEAAgICAQQCAQQDAAAAAAAAAQIDBAUREgYTITEUQRYHIiNRFWFx/8QAGAEBAQEBAQAAAAAAAAAAAAAAAAECAwT/xAAdEQEBAQABBQEAAAAAAAAAAAAAARECEiFBYXGh/9oADAMBAAIRAxEAPwD57AcHqAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASuP47d5LLbFx2ns7eSlZvamDFbJMVj7mYiPr/tFmOp6n7W70pu6/wDHOQ46OTx8Vu5N7V2qbOTziJpjjJ3HdIme6zet4j99fHzERNk3N/0rl9CclXLtam5zOfHkvTPfWjHntnna776jHNo7xdz37sV+fHx7jtcZ6vTLRosc/wADf13ozk1eJ/j2prz41jj6xGTJ+L1/k6r53/y/77iJ+Y6+0r0LzvpnJp7+f1PpcdfkcmzjmaTgxa+KdeKTE1rFcF4rPf34RW8/ExP2Z5JyuS4zAbLq8fw38T1N/a1uP1eFrTjqzmy8fac9cs5Y/ItN5rE5Inq89Ref7eoiI6nro9Qc16PwTsbHF4uJtvRxV8dI/EpmpOz+VWaz17FMc29ry+fDrr4mZn7WYTltyMl18GbZyTj18WTLeK2vNaVm0+NYm1p6j9RETMz+oiZdbXZ5r0xrZ+YzcPn4jWwZbchW1Z0p929cupFMNcMzSZpX3JvExE167+fjpXvV276fz+n8uPjv+P793WnQx6+t7efDjjFaM0Z7+Meczbx+7W+YmY6j7WY1Lqk4dTYz47ZMGvlyY62rS1qUmYi1u/GJmP3PU9R++k/F6d5vLr2z4uH5K+CtprbJXVvNYmJ6mJnrruJ+P/V…</pre></details><small>ID: screenshot-thumbnails</small></details><details class="audit"><summary>Final Screenshot — 100/100</summary><p>The last screenshot captured of the pageload.</p><p><strong></strong></p><small>ID: final-screenshot</small></details><details class="audit"><summary>Script Treemap Data — 100/100</summary><p>Used for treemap app</p><p><strong></strong></p><small>ID: script-treemap-data</small></details><details class="audit"><summary>Resources Summary — 100/100</summary><p>Aggregates all network requests and groups them by type</p><p><strong></strong></p><details><summary>Detalhes (9 registros)</summary><pre>[
+  {
+    &quot;resourceType&quot;: &quot;total&quot;,
+    &quot;label&quot;: &quot;Total&quot;,
+    &quot;requestCount&quot;: 13,
+    &quot;transferSize&quot;: 204016
+  },
+  {
+    &quot;resourceType&quot;: &quot;script&quot;,
+    &quot;label&quot;: &quot;Script&quot;,
+    &quot;requestCount&quot;: 4,
+    &quot;transferSize&quot;: 192709
+  },
+  {
+    &quot;resourceType&quot;: &quot;stylesheet&quot;,
+    &quot;label&quot;: &quot;Stylesheet&quot;,
+    &quot;requestCount&quot;: 1,
+    &quot;transferSize&quot;: 10515
+  },
+  {
+    &quot;resourceType&quot;: &quot;document&quot;,
+    &quot;label&quot;: &quot;Document&quot;,
+    &quot;requestCount&quot;: 1,
+    &quot;transferSize&quot;: 792
+  },
+  {
+    &quot;resourceType&quot;: &quot;image&quot;,
+    &quot;label&quot;: &quot;Image&quot;,
+    &quot;requestCount&quot;: 1,
+    &quot;transferSize&quot;: 0
+  }
+]</pre></details><small>ID: resource-summary</small></details><h2>Acessibilidade</h2><details class="audit"><summary>Interactive controls are keyboard focusable — Informativo</summary><p>Custom interactive controls are keyboard focusable and display a focus indicator. Learn how to make custom controls focusable.</p><p><strong></strong></p><small>ID: focusable-controls</small></details><details class="audit"><summary>Interactive elements indicate their purpose and state — Informativo</summary><p>Interactive elements, such as links and buttons, should indicate their state and be distinguishable from non-interactive elements. Learn how to decorate interactive elements with affordance hints.</p><p><strong></strong></p><small>ID: interactive-element-affordance</small></details><details class="audit"><summary>The page has a logical tab order — Informativo</summary><p>Tabbing through the page follows the visual layout. Users cannot focus elements that are offscreen. Learn more about logical tab ordering.</p><p><strong></strong></p><small>ID: logical-tab-order</small></details><details class="audit"><summary>Visual order on the page follows DOM order — Informativo</summary><p>DOM order matches the visual order, improving navigation for assistive technology. Learn more about DOM and visual ordering.</p><p><strong></strong></p><small>ID: visual-order-follows-dom</small></details><details class="audit"><summary>User focus is not accidentally trapped in a region — Informativo</summary><p>A user can tab into and out of any control or region without accidentally trapping their focus. Learn how to avoid focus traps.</p><p><strong></strong></p><small>ID: focus-traps</small></details><details class="audit"><summary>The user&#x27;s focus is directed to new content added to the page — Informativo</summary><p>If new content, such as a dialog, is added to the page, the user&#x27;s focus is directed to it. Learn how to direct focus to new content.</p><p><strong></strong></p><small>ID: managed-focus</small></details><details class="audit"><summary>HTML5 landmark elements are used to improve navigation — Informativo</summary><p>Landmark elements (&lt;main&gt;, &lt;nav&gt;, etc.) are used to improve the keyboard navigation of the page for assistive technology. Learn more about landmark elements.</p><p><strong></strong></p><small>ID: use-landmarks</small></details><details class="audit"><summary>Offscreen content is hidden from assistive technology — Informativo</summary><p>Offscreen content is hidden with display: none or aria-hidden=true. Learn how to properly hide offscreen content.</p><p><strong></strong></p><small>ID: offscreen-content-hidden</small></details><details class="audit"><summary>Custom controls have associated labels — Informativo</summary><p>Custom interactive controls have associated labels, provided by aria-label or aria-labelledby. Learn more about custom controls and labels.</p><p><strong></strong></p><small>ID: custom-controls-labels</small></details><details class="audit"><summary>Custom controls have ARIA roles — Informativo</summary><p>Custom interactive controls have appropriate ARIA roles. Learn how to add roles to custom controls.</p><p><strong></strong></p><small>ID: custom-controls-roles</small></details><details class="audit"><summary>`[aria-*]` attributes match their roles — 100/100</summary><p>Each ARIA role supports a specific subset of aria-* attributes. Mismatching these invalidates the aria-* attributes. Learn how to match ARIA attributes to their roles.</p><p><strong></strong></p><small>ID: aria-allowed-attr</small></details><details class="audit"><summary>Uses ARIA roles only on compatible elements — 100/100</summary><p>Many HTML elements can only be assigned certain ARIA roles. Using ARIA roles where they are not allowed can interfere with the accessibility of the web page. Learn more about ARIA roles.</p><p><strong></strong></p><small>ID: aria-allowed-role</small></details><details class="audit"><summary>ARIA attributes are used as specified for the element&#x27;s role — 100/100</summary><p>Some ARIA attributes are only allowed on an element under certain conditions. Learn more about conditional ARIA attributes.</p><p><strong></strong></p><small>ID: aria-conditional-attr</small></details><details class="audit"><summary>Deprecated ARIA roles were not used — 100/100</summary><p>Deprecated ARIA roles may not be processed correctly by assistive technology. Learn more about deprecated ARIA roles.</p><p><strong></strong></p><small>ID: aria-deprecated-role</small></details><details class="audit"><summary>`[aria-hidden=&quot;true&quot;]` is not present on the document `&lt;body&gt;` — 100/100</summary><p>Assistive technologies, like screen readers, work inconsistently when aria-hidden=&quot;true&quot; is set on the document &lt;body&gt;. Learn how aria-hidden affects the document body.</p><p><strong></strong></p><small>ID: aria-hidden-body</small></details><details class="audit"><summary>`[aria-hidden=&quot;true&quot;]` elements do not contain focusable descendents — 100/100</summary><p>Focusable descendents within an [aria-hidden=&quot;true&quot;] element prevent those interactive elements from being available to users of assistive technologies like screen readers. Learn how aria-hidden affects focusable elements.</p><p><strong></strong></p><small>ID: aria-hidden-focus</small></details><details class="audit"><summary>Elements use only permitted ARIA attributes — 100/100</summary><p>Using ARIA attributes in roles where they are prohibited can mean that important information is not communicated to users of assistive technologies. Learn more about prohibited ARIA roles.</p><p><strong></strong></p><small>ID: aria-prohibited-attr</small></details><details class="audit"><summary>`[role]`s have all required `[aria-*]` attributes — 100/100</summary><p>Some ARIA roles have required attributes that describe the state of the element to screen readers. Learn more about roles and required attributes.</p><p><strong></strong></p><small>ID: aria-required-attr</small></details><details class="audit"><summary>`[role]` values are valid — 100/100</summary><p>ARIA roles must have valid values in order to perform their intended accessibility functions. Learn more about valid ARIA roles.</p><p><strong></strong></p><small>ID: aria-roles</small></details><details class="audit"><summary>`[aria-*]` attributes have valid values — 100/100</summary><p>Assistive technologies, like screen readers, can&#x27;t interpret ARIA attributes with invalid values. Learn more about valid values for ARIA attributes.</p><p><strong></strong></p><small>ID: aria-valid-attr-value</small></details><details class="audit"><summary>`[aria-*]` attributes are valid and not misspelled — 100/100</summary><p>Assistive technologies, like screen readers, can&#x27;t interpret ARIA attributes with invalid names. Learn more about valid ARIA attributes.</p><p><strong></strong></p><small>ID: aria-valid-attr</small></details><details class="audit"><summary>Buttons have an accessible name — 100/100</summary><p>When a button doesn&#x27;t have an accessible name, screen readers announce it as &quot;button&quot;, making it unusable for users who rely on screen readers. Learn how to make buttons more accessible.</p><p><strong></strong></p><small>ID: button-name</small></details><details class="audit"><summary>Background and foreground colors have a sufficient contrast ratio — 100/100</summary><p>Low-contrast text is difficult or impossible for many users to read. Learn how to provide sufficient color contrast.</p><p><strong></strong></p><small>ID: color-contrast</small></details><details class="audit"><summary>`&lt;dl&gt;`&#x27;s contain only properly-ordered `&lt;dt&gt;` and `&lt;dd&gt;` groups, `&lt;script&gt;`, `&lt;template&gt;` or `&lt;div&gt;` elements. — 100/100</summary><p>When definition lists are not properly marked up, screen readers may produce confusing or inaccurate output. Learn how to structure definition lists correctly.</p><p><strong></strong></p><small>ID: definition-list</small></details><details class="audit"><summary>Definition list items are wrapped in `&lt;dl&gt;` elements — 100/100</summary><p>Definition list items (&lt;dt&gt; and &lt;dd&gt;) must be wrapped in a parent &lt;dl&gt; element to ensure that screen readers can properly announce them. Learn how to structure definition lists correctly.</p><p><strong></strong></p><small>ID: dlitem</small></details><details class="audit"><summary>Document has a `&lt;title&gt;` element — 100/100</summary><p>The title gives screen reader users an overview of the page, and search engine users rely on it heavily to determine if a page is relevant to their search. Learn more about document titles.</p><p><strong></strong></p><small>ID: document-title</small></details><details class="audit"><summary>Heading elements appear in a sequentially-descending order — 100/100</summary><p>Properly ordered headings that do not skip levels convey the semantic structure of the page, making it easier to navigate and understand when using assistive technologies. Learn more about heading order.</p><p><strong></strong></p><small>ID: heading-order</small></details><details class="audit"><summary>`&lt;html&gt;` element has a `[lang]` attribute — 100/100</summary><p>If a page doesn&#x27;t specify a lang attribute, a screen reader assumes that the page is in the default language that the user chose when setting up the screen reader. If the page isn&#x27;t actually in the default language, then the screen reader might not announce the page&#x27;s text correctly. Learn more about the lang attribute.</p><p><strong></strong></p><small>ID: html-has-lang</small></details><details class="audit"><summary>`&lt;html&gt;` element has a valid value for its `[lang]` attribute — 100/100</summary><p>Specifying a valid BCP 47 language helps screen readers announce text properly. Learn how to use the lang attribute.</p><p><strong></strong></p><small>ID: html-lang-valid</small></details><details class="audit"><summary>Image elements have `[alt]` attributes — 100/100</summary><p>Informative elements should aim for short, descriptive alternate text. Decorative elements can be ignored with an empty alt attribute. Learn more about the alt attribute.</p><p><strong></strong></p><small>ID: image-alt</small></details><details class="audit"><summary>Image elements do not have `[alt]` attributes that are redundant text. — 100/100</summary><p>Informative elements should aim for short, descriptive alternative text. Alternative text that is exactly the same as the text adjacent to the link or image is potentially confusing for screen reader users, because the text will be read twice. Learn more about the alt attribute.</p><p><strong></strong></p><small>ID: image-redundant-alt</small></details><details class="audit"><summary>`[user-scalable=&quot;no&quot;]` is not used in the `&lt;meta name=&quot;viewport&quot;&gt;` element and the `[maximum-scale]` attribute is not less than 5. — 100/100</summary><p>Disabling zooming is problematic for users with low vision who rely on screen magnification to properly see the contents of a web page. Learn more about the viewport meta tag.</p><p><strong></strong></p><small>ID: meta-viewport</small></details><details class="audit"><summary>Touch targets have sufficient size and spacing. — 100/100</summary><p>Touch targets with sufficient size and spacing help users who may have difficulty targeting small controls to activate the targets. Learn more about touch targets.</p><p><strong></strong></p><small>ID: target-size</small></details><details class="audit"><summary>Document has a main landmark. — 100/100</summary><p>One main landmark helps screen reader users navigate a web page. Learn more about landmarks.</p><p><strong></strong></p><details><summary>Detalhes (1 registros)</summary><pre>[
+  {
+    &quot;node&quot;: {
+      &quot;type&quot;: &quot;node&quot;,
+      &quot;lhId&quot;: &quot;1-0-HTML&quot;,
+      &quot;path&quot;: &quot;1,HTML&quot;,
+      &quot;selector&quot;: &quot;html&quot;,
+      &quot;boundingRect&quot;: {
+        &quot;top&quot;: 0,
+        &quot;bottom&quot;: 891,
+        &quot;left&quot;: 0,
+        &quot;right&quot;: 412,
+        &quot;width&quot;: 412,
+        &quot;height&quot;: 891
+      },
+      &quot;snippet&quot;: &quot;&lt;html lang=\&quot;pt-BR\&quot;&gt;&quot;,
+      &quot;nodeLabel&quot;: &quot;html&quot;,
+      &quot;explanation&quot;: &quot;Fix all of the following:\n  Document does not have a main landmark&quot;
+    }
+  }
+]</pre></details><small>ID: landmark-one-main</small></details><h2>Boas práticas</h2><details class="audit"><summary>Browser errors were logged to the console — 0/100</summary><p>Errors logged to the console indicate unresolved problems. They can come from network request failures and other browser concerns. Learn more about this errors in console diagnostic audit</p><p><strong></strong></p><details><summary>Detalhes (2 registros)</summary><pre>[
+  {
+    &quot;source&quot;: &quot;network&quot;,
+    &quot;description&quot;: &quot;Failed to load resource: the server responded with a status of 401 (Unauthorized)&quot;,
+    &quot;sourceLocation&quot;: {
+      &quot;type&quot;: &quot;source-location&quot;,
+      &quot;url&quot;: &quot;http://127.0.0.1:4173/api/auth/session&quot;,
+      &quot;urlProvider&quot;: &quot;network&quot;,
+      &quot;line&quot;: 0,
+      &quot;column&quot;: 0
+    }
+  },
+  {
+    &quot;source&quot;: &quot;network&quot;,
+    &quot;description&quot;: &quot;Failed to load resource: the server responded with a status of 404 (Not Found)&quot;,
+    &quot;sourceLocation&quot;: {
+      &quot;type&quot;: &quot;source-location&quot;,
+      &quot;url&quot;: &quot;http://127.0.0.1:4173/favicon.ico&quot;,
+      &quot;urlProvider&quot;: &quot;network&quot;,
+      &quot;line&quot;: 0,
+      &quot;column&quot;: 0
+    }
+  }
+]</pre></details><small>ID: errors-in-console</small></details><details class="audit"><summary>Uses HTTPS — 100/100</summary><p>All sites should be protected with HTTPS, even ones that don&#x27;t handle sensitive data. This includes avoiding mixed content, where some resources are loaded over HTTP despite the initial request being served over HTTPS. HTTPS prevents intruders from tampering with or passively listening in on the communications between your app and your users, and is a prerequisite for HTTP/2 and many new web platform APIs. Learn more about HTTPS.</p><p><strong></strong></p><small>ID: is-on-https</small></details><details class="audit"><summary>Avoids requesting the geolocation permission on page load — 100/100</summary><p>Users are mistrustful of or confused by sites that request their location without context. Consider tying the request to a user action instead. Learn more about the geolocation permission.</p><p><strong></strong></p><small>ID: geolocation-on-start</small></details><details class="audit"><summary>Avoids requesting the notification permission on page load — 100/100</summary><p>Users are mistrustful of or confused by sites that request to send notifications without context. Consider tying the request to user gestures instead. Learn more about responsibly getting permission for notifications.</p><p><strong></strong></p><small>ID: notification-on-start</small></details><details class="audit"><summary>Ensure CSP is effective against XSS attacks — 100/100</summary><p>A strong Content Security Policy (CSP) significantly reduces the risk of cross-site scripting (XSS) attacks. Learn how to use a CSP to prevent XSS</p><p><strong></strong></p><details><summary>Detalhes (1 registros)</summary><pre>[
+  {
+    &quot;severity&quot;: &quot;High&quot;,
+    &quot;description&quot;: &quot;No CSP found in enforcement mode&quot;
+  }
+]</pre></details><small>ID: csp-xss</small></details><details class="audit"><summary>Use a strong HSTS policy — 100/100</summary><p>Deployment of the HSTS header significantly reduces the risk of downgrading HTTP connections and eavesdropping attacks. A rollout in stages, starting with a low max-age is recommended. Learn more about using a strong HSTS policy.</p><p><strong></strong></p><details><summary>Detalhes (1 registros)</summary><pre>[
+  {
+    &quot;severity&quot;: &quot;High&quot;,
+    &quot;description&quot;: &quot;No HSTS header found&quot;
+  }
+]</pre></details><small>ID: has-hsts</small></details><details class="audit"><summary>Ensure proper origin isolation with COOP — 100/100</summary><p>The Cross-Origin-Opener-Policy (COOP) can be used to isolate the top-level window from other documents such as pop-ups. Learn more about deploying the COOP header.</p><p><strong></strong></p><details><summary>Detalhes (1 registros)</summary><pre>[
+  {
+    &quot;description&quot;: &quot;No COOP header found&quot;,
+    &quot;severity&quot;: &quot;High&quot;
+  }
+]</pre></details><small>ID: origin-isolation</small></details><details class="audit"><summary>Mitigate clickjacking with XFO or CSP — 100/100</summary><p>The X-Frame-Options (XFO) header or the frame-ancestors directive in the Content-Security-Policy (CSP) header control where a page can be embedded. These can mitigate clickjacking attacks by blocking some or all sites from embedding the page. Learn more about mitigating clickjacking.</p><p><strong></strong></p><details><summary>Detalhes (1 registros)</summary><pre>[
+  {
+    &quot;severity&quot;: &quot;High&quot;,
+    &quot;description&quot;: &quot;No frame control policy found&quot;
+  }
+]</pre></details><small>ID: clickjacking-mitigation</small></details><details class="audit"><summary>Allows users to paste into input fields — 100/100</summary><p>Preventing input pasting is a bad practice for the UX, and weakens security by blocking password managers.Learn more about user-friendly input fields.</p><p><strong></strong></p><small>ID: paste-preventing-inputs</small></details><details class="audit"><summary>Displays images with correct aspect ratio — 100/100</summary><p>Image display dimensions should match natural aspect ratio. Learn more about image aspect ratio.</p><p><strong></strong></p><small>ID: image-aspect-ratio</small></details><details class="audit"><summary>Serves images with appropriate resolution — 100/100</summary><p>Image natural dimensions should be proportional to the display size and the pixel ratio to maximize image clarity. Learn how to provide responsive images.</p><p><strong></strong></p><small>ID: image-size-responsive</small></details><details class="audit"><summary>Document uses legible font sizes — 100/100</summary><p>Font sizes less than 12px are too small to be legible and require mobile visitors to “pinch to zoom” in order to read. Strive to have &gt;60% of page text ≥12px. Learn more about legible font sizes.</p><p><strong>98.53% legible text</strong></p><details><summary>Detalhes (2 registros)</summary><pre>[
+  {
+    &quot;source&quot;: {
+      &quot;type&quot;: &quot;source-location&quot;,
+      &quot;url&quot;: &quot;http://127.0.0.1:4173/assets/index-Cnmf7zVN.css&quot;,
+      &quot;urlProvider&quot;: &quot;network&quot;,
+      &quot;line&quot;: 0,
+      &quot;column&quot;: 32684
+    },
+    &quot;selector&quot;: &quot;.text-\\[11px\\]&quot;,
+    &quot;coverage&quot;: &quot;1.47%&quot;,
+    &quot;fontSize&quot;: &quot;11px&quot;
+  },
+  {
+    &quot;source&quot;: {
+      &quot;type&quot;: &quot;code&quot;,
+      &quot;value&quot;: &quot;Legible text&quot;
+    },
+    &quot;selector&quot;: &quot;&quot;,
+    &quot;coverage&quot;: &quot;98.53%&quot;,
+    &quot;fontSize&quot;: &quot;≥ 12px&quot;
+  }
+]</pre></details><small>ID: font-size</small></details><details class="audit"><summary>Page has the HTML doctype — 100/100</summary><p>Specifying a doctype prevents the browser from switching to quirks-mode. Learn more about the doctype declaration.</p><p><strong></strong></p><small>ID: doctype</small></details><details class="audit"><summary>Properly defines charset — 100/100</summary><p>A character encoding declaration is required. It can be done with a &lt;meta&gt; tag in the first 1024 bytes of the HTML or in the Content-Type HTTP response header. Learn more about declaring the character encoding.</p><p><strong></strong></p><small>ID: charset</small></details><details class="audit"><summary>Avoids deprecated APIs — 100/100</summary><p>Deprecated APIs will eventually be removed from the browser. Learn more about deprecated APIs.</p><p><strong></strong></p><small>ID: deprecations</small></details><details class="audit"><summary>Avoids third-party cookies — 100/100</summary><p>Third-party cookies may be blocked in some contexts. Learn more about preparing for third-party cookie restrictions.</p><p><strong></strong></p><small>ID: third-party-cookies</small></details><details class="audit"><summary>Page has valid source maps — 100/100</summary><p>Source maps translate minified code to the original source code. This helps developers debug in production. In addition, Lighthouse is able to provide further insights. Consider deploying source maps to take advantage of these benefits. Learn more about source maps.</p><p><strong></strong></p><small>ID: valid-source-maps</small></details><details class="audit"><summary>No issues in the `Issues` panel in Chrome Devtools — 100/100</summary><p>Issues logged to the Issues panel in Chrome Devtools indicate unresolved problems. They can come from network request failures, insufficient security controls, and other browser concerns. Open up the Issues panel in Chrome DevTools for more details on each issue.</p><p><strong></strong></p><small>ID: inspector-issues</small></details><h2>SEO</h2><details class="audit"><summary>robots.txt is not valid — 0/100</summary><p>If your robots.txt file is malformed, crawlers may not be able to understand how you want your website to be crawled or indexed. Learn more about robots.txt.</p><p><strong>15 errors found</strong></p><details><summary>Detalhes (15 registros)</summary><pre>[
+  {
+    &quot;index&quot;: &quot;1&quot;,
+    &quot;line&quot;: &quot;&lt;!doctype html&gt;&quot;,
+    &quot;message&quot;: &quot;Syntax not understood&quot;
+  },
+  {
+    &quot;index&quot;: &quot;2&quot;,
+    &quot;line&quot;: &quot;&lt;html lang=\&quot;pt-BR\&quot;&gt;&quot;,
+    &quot;message&quot;: &quot;Syntax not understood&quot;
+  },
+  {
+    &quot;index&quot;: &quot;3&quot;,
+    &quot;line&quot;: &quot;  &lt;head&gt;&quot;,
+    &quot;message&quot;: &quot;Syntax not understood&quot;
+  },
+  {
+    &quot;index&quot;: &quot;4&quot;,
+    &quot;line&quot;: &quot;    &lt;meta charset=\&quot;UTF-8\&quot; /&gt;&quot;,
+    &quot;message&quot;: &quot;Syntax not understood&quot;
+  },
+  {
+    &quot;index&quot;: &quot;5&quot;,
+    &quot;line&quot;: &quot;    &lt;meta name=\&quot;viewport\&quot; content=\&quot;width=device-width, initial-scale=1.0\&quot; /&gt;&quot;,
+    &quot;message&quot;: &quot;Syntax not understood&quot;
+  }
+]</pre></details><small>ID: robots-txt</small></details><details class="audit"><summary>Structured data is valid — Informativo</summary><p>Run the Structured Data Testing Tool and the Structured Data Linter to validate structured data. Learn more about Structured Data.</p><p><strong></strong></p><small>ID: structured-data</small></details><details class="audit"><summary>Page isn’t blocked from indexing — 100/100</summary><p>Search engines are unable to include your pages in search results if they don&#x27;t have permission to crawl them. Learn more about crawler directives.</p><p><strong></strong></p><small>ID: is-crawlable</small></details><details class="audit"><summary>Document has a meta description — 100/100</summary><p>Meta descriptions may be included in search results to concisely summarize page content. Learn more about the meta description.</p><p><strong></strong></p><small>ID: meta-description</small></details><details class="audit"><summary>Page has successful HTTP status code — 100/100</summary><p>Pages with unsuccessful HTTP status codes may not be indexed properly. Learn more about HTTP status codes.</p><p><strong></strong></p><small>ID: http-status-code</small></details><details class="audit"><summary>Links have descriptive text — 100/100</summary><p>Descriptive link text helps search engines understand your content. Learn how to make links more accessible.</p><p><strong></strong></p><small>ID: link-text</small></details><details class="audit"><summary>Links are crawlable — 100/100</summary><p>Search engines may use href attributes on links to crawl websites. Ensure that the href attribute of anchor elements links to an appropriate destination, so more pages of the site can be discovered. Learn how to make links crawlable</p><p><strong></strong></p><small>ID: crawlable-anchors</small></details><details class="audit"><summary>Document has a valid `hreflang` — 100/100</summary><p>hreflang links tell search engines what version of a page they should list in search results for a given language or region. Learn more about hreflang.</p><p><strong></strong></p><small>ID: hreflang</small></details><hr/><small>HTML estático gerado a partir do relatório Lighthouse original, sem conexão externa.</small></main></body></html>
