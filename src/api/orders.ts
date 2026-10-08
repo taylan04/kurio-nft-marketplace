@@ -1,9 +1,9 @@
 import { api } from './client'
-import type { CartItem, Order, Quote, Wallet } from '@/types/domain'
+import type { CartItem, CollectorDetails, Order, Quote, Wallet } from '@/types/domain'
 
-export async function createOrder(input: { walletType: Wallet['type']; expectedQuote: Quote; expectedItems: CartItem[]; idempotencyKey: string }) {
+export async function createOrder(input: { walletType: Wallet['type']; expectedQuote: Quote; expectedItems: CartItem[]; collector: CollectorDetails; idempotencyKey: string }) {
   const { data } = await api.post<Order>('/orders', {
-    walletType: input.walletType, expectedQuote: input.expectedQuote, expectedItems: input.expectedItems,
+    walletType: input.walletType, expectedQuote: input.expectedQuote, expectedItems: input.expectedItems, collector: input.collector,
   }, {
     headers: { 'Idempotency-Key': input.idempotencyKey },
   })

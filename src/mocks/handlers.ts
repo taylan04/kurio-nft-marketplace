@@ -1,7 +1,8 @@
 import { delay, http, HttpResponse } from 'msw'
 import Decimal from 'decimal.js'
 import { multiplyEth } from '@/lib/money'
-import type { Cart, CartItem, CartLine, CatalogSearch, NFT, Order, Quote, Wallet } from '@/types/domain'
+import { validateCollector } from '@/lib/collectorValidation'
+import type { Cart, CartItem, CartLine, CatalogSearch, CollectorDetails, NFT, Order, Quote, Wallet } from '@/types/domain'
 import { getAuthUser, getCartKey, readDb, resetDb, writeDb } from './db'
 import { emitRealtime, realtimeHandler } from './realtime'
 import { getScenario, resetScenario, setScenario } from './scenarios'
@@ -314,7 +315,7 @@ export const handlers = [
     if (!user) return error('Sessão expirada.', 401)
     const idempotencyKey = request.headers.get('Idempotency-Key')
     if (!idempotencyKey) return error('Idempotency-Key é obrigatória.', 400)
-    const input = await request.json() as { walletType: Wallet['type']; expectedQuote: Quote; expectedItems: CartItem[] }
+    const input = await request.json() as { walletType: Wallet['type']; expectedQuote: Quote; expectedItems: CartItem[]; collector: CollectorDetails }
     const payloadSignature = JSON.stringify(input)
     const previous = db.orders.find((order) => order.idempotencyKey === idempotencyKey)
     if (previous) {
@@ -323,8 +324,11 @@ export const handlers = [
       const recovered = readDb().orders.find((entry) => entry.id === previous.id)!
       return HttpResponse.json(recovered)
     }
-    if (!db.wallets.some((entry) => entry.userId === user.id && entry.type === input.walletType))
-      return error('Cadastre uma carteira deste tipo antes de finalizar.', 422)
+    const savedWallet = db.wallets.find((entry) => entry.userId === user.id && entry.type === input.walletType)
+    if (!savedWallet) return error('Cadastre uma carteira deste tipo antes de finalizar.', 422)
+    if (!input.collector || typeof input.collector !== 'object') return error('Preencha os dados do colecionador.', 422)
+    const collectorErrors = validateCollector(input.collector, savedWallet)
+    if (Object.keys(collectorErrors).length) return HttpResponse.json({ message: 'Revise os dados do colecionador.', fields: collectorErrors }, { status: 422 })
     const cart = buildCart(request)
     if (!cart.items.length) return error('Carrinho vazio.', 409)
     if (!matchesQuote(input.expectedQuote, cart.quote) || !matchesItems(input.expectedItems, cart.items))
@@ -336,7 +340,8 @@ export const handlers = [
       status: 'pending',
       transactionHash: `0x${crypto.randomUUID().replaceAll('-', '').slice(0, 12).toUpperCase()}`,
       walletType: input.walletType,
-      walletLabel: input.walletType,
+      walletLabel: savedWallet.label,
+      collector: structuredClone(input.collector),
       lines: structuredClone(cart.lines),
       quote: structuredClone(cart.quote),
       idempotencyKey,

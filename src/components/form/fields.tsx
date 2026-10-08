@@ -27,17 +27,19 @@ export function Field({ id, label, required = false, children, className }: { id
   )
 }
 
-export function SelectField({ id, placeholder, options, value, onValueChange, className }: {
+export function SelectField({ id, placeholder, options, value, onValueChange, className, ariaInvalid, errorId }: {
   id?: string
   placeholder: string
   options: readonly string[]
   value?: string
   onValueChange?: (value: string) => void
   className?: string
+  ariaInvalid?: boolean
+  errorId?: string
 }) {
   return (
     <Select value={value} onValueChange={onValueChange}>
-      <SelectTrigger id={id} className={cn(fieldClass, 'pr-7 data-[placeholder]:text-muted-dim [&_svg]:text-foreground', className)}>
+      <SelectTrigger id={id} aria-invalid={ariaInvalid} aria-describedby={errorId} className={cn(fieldClass, 'pr-7 data-[placeholder]:text-muted-dim [&_svg]:text-foreground', className)}>
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent>

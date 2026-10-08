@@ -18,7 +18,9 @@ import { isAxiosError } from 'axios'
 import { clearCheckoutAttempt, createCheckoutAttempt, readCheckoutAttempt } from '@/lib/checkoutAttempt'
 import { formatEth } from '@/lib/money'
 import { useSession } from '@/hooks/useSession'
-import type { Quote, Wallet } from '@/types/domain'
+import type { CollectorDetails, Quote, Wallet } from '@/types/domain'
+import { validateCollector, type CollectorErrors } from '@/lib/collectorValidation'
+import { apiErrorMessage } from '@/lib/apiError'
 
 function sameQuote(a: Quote, b: Quote) {
   return a.totalEth === b.totalEth && a.subtotalEth === b.subtotalEth &&
@@ -37,6 +39,36 @@ export function CheckoutPage() {
   const [showCoupon, setShowCoupon] = useState(false)
   const [reviewNotice, setReviewNotice] = useState('')
   const [recovering, setRecovering] = useState(false)
+  const [collector, setCollector] = useState<CollectorDetails>({
+    displayName: '', username: '', network: 'Ethereum', profileName: '', walletAddress: '',
+    secondaryWallet: '', walletType: 'Coinbase Wallet', referralCode: '', email: '', ens: '', note: '',
+  })
+  const [collectorErrors, setCollectorErrors] = useState<CollectorErrors>({})
+  const [showMobileCollector, setShowMobileCollector] = useState(false)
+  const savedWallet = wallets.data?.find((entry) => entry.type === wallet && entry.userId === session.data?.user.id)
+
+  useEffect(() => {
+    const user = session.data?.user
+    const activeWallet = wallets.data?.find((entry) => entry.type === wallet && entry.userId === user?.id)
+    if (!user || !activeWallet) return
+    setCollector((current) => ({
+      displayName: user.displayName, username: user.username, profileName: user.displayName,
+      email: user.email, ens: user.ens || activeWallet.ens || '', note: current.note,
+      network: activeWallet.network, walletAddress: activeWallet.address,
+      walletType: activeWallet.type, referralCode: activeWallet.referralCode || '', secondaryWallet: '',
+    }))
+    setCollectorErrors({})
+  }, [session.data?.user, wallets.data, wallet])
+
+  const confirmPurchase = () => {
+    const errors = validateCollector(collector, savedWallet)
+    setCollectorErrors(errors)
+    if (Object.keys(errors).length) {
+      setShowMobileCollector(true)
+      return
+    }
+    order.mutate()
+  }
 
   useEffect(() => {
     if (wallets.data?.length && !wallets.data.some((entry) => entry.type === wallet)) {
@@ -78,7 +110,9 @@ export function CheckoutPage() {
           if (!isAxiosError(error) || error.response?.status !== 404) throw error
         }
       }
-      if (!wallets.data?.some((entry) => entry.type === wallet)) throw new Error('Cadastre uma carteira desse tipo para continuar.')
+      if (!savedWallet) throw new Error('Cadastre uma carteira desse tipo para continuar.')
+      if (Object.keys(validateCollector(collector, savedWallet)).length)
+        throw new Error('Revise os campos obrigatórios do perfil do colecionador.')
       // Always compare the latest REST quote with what the collector last saw.
       const latest = await validateQuote()
       queryClient.setQueryData(['cart'], latest)
@@ -87,8 +121,8 @@ export function CheckoutPage() {
         setReviewNotice('Os preços ou taxas mudaram. Revise os novos valores e confirme novamente.')
         throw new Error('Sua cotação mudou. Revise os valores antes de confirmar.')
       }
-      const attempt = createCheckoutAttempt(userId, wallet, latest.quote, latest.items)
-      return createOrder({ walletType: attempt.walletType, expectedQuote: attempt.expectedQuote, expectedItems: attempt.expectedItems, idempotencyKey: attempt.key })
+      const attempt = createCheckoutAttempt(userId, wallet, latest.quote, latest.items, collector)
+      return createOrder({ walletType: attempt.walletType, expectedQuote: attempt.expectedQuote, expectedItems: attempt.expectedItems, collector: attempt.collector, idempotencyKey: attempt.key })
     },
     onSuccess: (data) => {
       clearCheckoutAttempt()
@@ -107,7 +141,8 @@ export function CheckoutPage() {
   }
   const data = cart.data!
 
-  const orderError = order.error && <p role="alert" className="mt-4 text-sm text-danger">{order.error instanceof Error ? order.error.message : 'Não foi possível finalizar. Os itens foram preservados.'}</p>
+  const orderError = order.error && <p role="alert" className="mt-4 text-sm text-danger">{apiErrorMessage(order.error)}</p>
+  const collectorNotice = Object.keys(collectorErrors).length > 0 && <p role="alert" className="mt-3 text-sm text-danger">Revise os campos destacados do perfil do colecionador.</p>
   const reviewMessage = reviewNotice && <p role="status" className="mt-3 text-sm text-accent-light">{reviewNotice}</p>
   const confirmLabel = order.isPending ? 'Verificando e enviando...' : recovering ? 'Recuperando pedido...' : 'Confirmar compra'
 
@@ -121,7 +156,7 @@ export function CheckoutPage() {
           <h1 className="sr-only">Pagamento</h1>
 
           <div className="mt-[27px] grid gap-10 lg:grid-cols-[762px_405px] lg:justify-between">
-            <CollectorForm />
+            <CollectorForm value={collector} onChange={(next) => { setCollector(next); setCollectorErrors({}) }} errors={collectorErrors} />
 
             <aside aria-labelledby="your-nfts">
               <h2 id="your-nfts" className="text-[17px] font-bold leading-[22px]">Seus NFTs</h2>
@@ -145,8 +180,9 @@ export function CheckoutPage() {
               <h2 className="mt-1.5 text-center text-[17px] font-bold leading-[22px]">Carteira e rede</h2>
               <div className="mt-4"><WalletSelector value={wallet} onChange={setWallet} /></div>
               {reviewMessage}
+              {collectorNotice}
               {orderError}
-              <button type="button" disabled={disabled} onClick={() => order.mutate()} className="mt-6 h-11 w-full rounded-[3px] bg-accent text-[15px] font-bold text-[#1a100b] transition hover:brightness-110 disabled:opacity-60">
+              <button type="button" disabled={disabled} onClick={confirmPurchase} className="mt-6 h-11 w-full rounded-[3px] bg-accent text-[15px] font-bold text-[#1a100b] transition hover:brightness-110 disabled:opacity-60">
                 {confirmLabel}
               </button>
             </aside>
@@ -168,6 +204,13 @@ export function CheckoutPage() {
 
       <ConnectedWallets onSelect={setWallet} />
 
+      <div className="mt-5">
+        <button type="button" aria-expanded={showMobileCollector} onClick={() => setShowMobileCollector((visible) => !visible)} className="text-sm font-bold text-accent-light underline underline-offset-4">
+          {showMobileCollector ? 'Ocultar dados do colecionador' : 'Revisar dados do colecionador'}
+        </button>
+        {showMobileCollector && <div className="mt-4"><CollectorForm value={collector} onChange={(next) => { setCollector(next); setCollectorErrors({}) }} errors={collectorErrors} /></div>}
+      </div>
+
       <h2 className="mt-[13px] text-[15px] font-bold leading-5">Carteira e rede</h2>
       <div className="mt-4"><WalletSelector variant="mobile" value={wallet} onChange={setWallet} /></div>
 
@@ -176,10 +219,11 @@ export function CheckoutPage() {
         <span className="text-[17px] text-accent-light">{formatEth(data.quote.totalEth)}</span>
       </p>
       {reviewMessage}
+      {collectorNotice}
       {orderError}
 
       <div className="fixed inset-x-0 bottom-0 bg-background px-7 pb-[max(34px,env(safe-area-inset-bottom))] pt-3">
-        <button type="button" disabled={disabled} onClick={() => order.mutate()} className="h-[58px] w-full rounded-full bg-gradient-to-r from-[#d99357] to-[#b77a49] text-[15px] font-bold text-[#1a100b] transition hover:brightness-110 disabled:opacity-60">
+        <button type="button" disabled={disabled} onClick={confirmPurchase} className="h-[58px] w-full rounded-full bg-gradient-to-r from-[#d99357] to-[#b77a49] text-[15px] font-bold text-[#1a100b] transition hover:brightness-110 disabled:opacity-60">
           {confirmLabel}
         </button>
       </div>

@@ -98,6 +98,21 @@ export interface Cart {
 
 export type OrderStatus = 'pending' | 'confirmed' | 'declined'
 
+/** Collector data is part of the immutable order snapshot, not just decoration in the UI. */
+export interface CollectorDetails {
+  displayName: string
+  username: string
+  network: Network
+  profileName: string
+  walletAddress: string
+  secondaryWallet: string
+  walletType: Wallet['type']
+  referralCode: string
+  email: string
+  ens: string
+  note: string
+}
+
 export interface Order {
   id: string
   userId: string
@@ -106,6 +121,7 @@ export interface Order {
   transactionHash: string
   walletType: Wallet['type']
   walletLabel: string
+  collector?: CollectorDetails
   lines: CartLine[]
   quote: Quote
   idempotencyKey: string

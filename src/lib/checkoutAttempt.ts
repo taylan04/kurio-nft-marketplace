@@ -1,4 +1,4 @@
-import type { CartItem, Quote, Wallet } from '@/types/domain'
+import type { CartItem, CollectorDetails, Quote, Wallet } from '@/types/domain'
 import { newIdempotencyKey } from './idempotency'
 
 const KEY = 'kurio-checkout-attempt-v1'
@@ -9,6 +9,7 @@ export interface CheckoutAttempt {
   walletType: Wallet['type']
   expectedQuote: Quote
   expectedItems: CartItem[]
+  collector: CollectorDetails
 }
 
 export function readCheckoutAttempt(userId: string): CheckoutAttempt | undefined {
@@ -22,12 +23,13 @@ export function readCheckoutAttempt(userId: string): CheckoutAttempt | undefined
   }
 }
 
-export function createCheckoutAttempt(userId: string, walletType: Wallet['type'], quote: Quote, items: CartItem[]) {
+export function createCheckoutAttempt(userId: string, walletType: Wallet['type'], quote: Quote, items: CartItem[], collector: CollectorDetails) {
   const existing = readCheckoutAttempt(userId)
   if (existing && existing.walletType === walletType &&
       JSON.stringify(existing.expectedQuote) === JSON.stringify(quote) &&
-      JSON.stringify(existing.expectedItems) === JSON.stringify(items)) return existing
-  const attempt: CheckoutAttempt = { key: newIdempotencyKey(), userId, walletType, expectedQuote: quote, expectedItems: items }
+      JSON.stringify(existing.expectedItems) === JSON.stringify(items) &&
+      JSON.stringify(existing.collector) === JSON.stringify(collector)) return existing
+  const attempt: CheckoutAttempt = { key: newIdempotencyKey(), userId, walletType, expectedQuote: quote, expectedItems: items, collector: structuredClone(collector) }
   sessionStorage.setItem(KEY, JSON.stringify(attempt))
   return attempt
 }

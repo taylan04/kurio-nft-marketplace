@@ -72,7 +72,7 @@ export function OrderReceipt({ order }: { order: Order }) {
 
         {order.status === 'confirmed' && (
           <p className="mt-[13px] text-center text-[13px] leading-[22px]">
-            Transação confirmada na Ethereum. A propriedade foi transferida para sua carteira conectada e registrada na rede.
+            Transação simulada confirmada na rede {order.collector?.network || 'Ethereum'}. Nenhuma operação real foi enviada à blockchain.
           </p>
         )}
         <div className="mt-[19px] flex justify-center">
