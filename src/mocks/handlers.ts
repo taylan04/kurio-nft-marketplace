@@ -355,6 +355,14 @@ export const handlers = [
 
     setTimeout(() => settleOrder(order.id), 1450)
 
+    // A operação foi persistida, mas a resposta se perde no caminho. Na
+    // próxima tentativa, a chave de idempotência recupera o mesmo pedido.
+    // O cenário é de uso único para não manter todas as tentativas bloqueadas.
+    if (getScenario().timeoutAfterOrderCreation) {
+      setScenario({ timeoutAfterOrderCreation: false })
+      await delay(9_000) // timeout do Axios: 8.000 ms
+    }
+
     return HttpResponse.json(order, { status: 201 })
   }),
 
