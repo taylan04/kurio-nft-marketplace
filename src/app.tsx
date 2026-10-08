@@ -14,7 +14,7 @@ export const queryClient = new QueryClient({
 })
 
 function RuntimeServices() {
-  useRealtime()
+  const announcement = useRealtime()
   useEffect(() => {
     const sessionExpired = () => {
       const path = window.location.pathname + window.location.search
@@ -25,7 +25,7 @@ function RuntimeServices() {
     window.addEventListener('kurio:session-expired', sessionExpired)
     return () => window.removeEventListener('kurio:session-expired', sessionExpired)
   }, [])
-  return <><RouterProvider router={router}/><MockScenarioPanel/></>
+  return <><RouterProvider router={router}/><MockScenarioPanel/><div className="sr-only" role="status" aria-live="polite">{announcement}</div></>
 }
 
 export function App() {

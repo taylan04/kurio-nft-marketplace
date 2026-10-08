@@ -81,3 +81,12 @@ A mesma árvore de componentes é reaproveitada. Desktop e mobile mudam principa
 4. Rodar Lighthouse, salvar HTML/JSON e registrar medianas.
 5. Substituir os SVGs placeholder pelos assets originais do Figma, se disponíveis.
 6. Refinar pixel-perfect comparando 390/768/1440.
+
+## Atualização de tempo real — ciclo de vida e duplicatas
+
+- Cada instância do hook mantém uma conexão Socket.IO com listeners locais. Logout, troca de usuário e desmontagem desconectam a conexão anterior.
+- `nft.updated` exige `resourceId`, `version` e `data.version` coerentes. Eventos repetidos ou anteriores ao cache são descartados; catálogo, detalhe e linha do carrinho são atualizados, seguidos de reconciliação dos valores com REST.
+- `order.updated` exige `userId` compatível com a sessão, além de identidade e versão corretas. Status terminais não retrocedem para pendente.
+- Em toda conexão/reconexão, as consultas ativas de catálogo, detalhe, carrinho e pedido (quando autenticado) são revalidadas via Axios/MSW.
+- A UI anuncia atualizações relevantes para leitores de tela em `role=status` sem mudar o layout do Figma.
+- Para reproduzir evento antigo: POST `/api/mock/nft-update` com `{"nftId":"042","priceEth":"1.79"}` e depois POST `/api/mock/replay-old-nft` com `{"nftId":"042"}`. O segundo comando reenvia uma versão antiga apenas pelo canal Socket.IO, sem alterar o banco.

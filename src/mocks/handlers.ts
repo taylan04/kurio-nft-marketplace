@@ -6,6 +6,7 @@ import { getAuthUser, getCartKey, readDb, resetDb, writeDb } from './db'
 import { emitRealtime, realtimeHandler } from './realtime'
 import { getScenario, resetScenario, setScenario } from './scenarios'
 import { createPasswordSalt, hashPassword } from './passwords'
+import { nftFixtures } from './fixtures'
 
 async function networkDelay() {
   await delay(getScenario().latencyMs)
@@ -441,6 +442,20 @@ export const handlers = [
     const input = await request.json() as Parameters<typeof setScenario>[0]
     setScenario(input)
     return HttpResponse.json(getScenario())
+  }),
+
+  // Test-only replay of the original NFT snapshot through the actual Socket.IO
+  // transport. The database is NOT changed: this must be ignored by a newer UI.
+  http.post('/api/mock/replay-old-nft', async ({ request }) => {
+    const { nftId } = await request.json() as { nftId: string }
+    const original = nftFixtures.find((entry) => entry.id === nftId)
+    if (!original) return error('NFT não encontrado.', 404)
+    emitRealtime('nft.updated', {
+      resourceId: original.id,
+      version: original.version,
+      data: structuredClone(original),
+    })
+    return HttpResponse.json({ replayedVersion: original.version })
   }),
 
   http.post('/api/mock/nft-update', async ({ request }) => {
