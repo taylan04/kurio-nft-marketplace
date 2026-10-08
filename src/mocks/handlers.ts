@@ -428,9 +428,34 @@ export const handlers = [
     const { db, user } = requireUser(request)
     if (!user) return error('Sessão expirada.', 401)
     const input = await request.json() as Omit<Wallet, 'userId'>
-    if (!input.address?.startsWith('0x')) return error('Endereço de carteira inválido.', 422)
-    const wallet: Wallet = { ...input, id: input.id || crypto.randomUUID(), userId: user.id }
-    const index = db.wallets.findIndex((entry) => entry.id === wallet.id && entry.userId === user.id)
+    if (!input.label?.trim() || !input.nickname?.trim() || !input.profileName?.trim() ||
+        !['Ethereum', 'Polygon', 'Solana'].includes(input.network) ||
+        !['MetaMask', 'WalletConnect', 'Coinbase Wallet'].includes(input.type) ||
+        !/^0x\S{4,}$/.test(input.address || '') ||
+        !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(input.email || '') ||
+        !input.referralCode?.trim()) {
+      return error('Preencha todos os campos obrigatórios da carteira com dados válidos.', 422)
+    }
+    // Ownership is determined from the session. An id owned by another account
+    // can never be used to replace (or clone) a wallet from that account.
+    if (input.id && db.wallets.some((entry) => entry.id === input.id && entry.userId !== user.id))
+      return error('Você não pode editar essa carteira.', 403)
+    const index = input.id ? db.wallets.findIndex((entry) => entry.id === input.id && entry.userId === user.id) : -1
+    if (input.id && index < 0) return error('Carteira não encontrada.', 404)
+    const wallet: Wallet = {
+      id: input.id || crypto.randomUUID(), userId: user.id,
+      label: input.label.trim(), nickname: input.nickname.trim(),
+      profileName: input.profileName.trim(), secondary: input.secondary?.trim(),
+      address: input.address.trim(), network: input.network, type: input.type,
+      email: input.email.trim().toLowerCase(), ens: input.ens?.trim(),
+      referralCode: input.referralCode.trim(), primary: Boolean(input.primary),
+    }
+    // Only one main wallet per user; secondary wallets stay independent.
+    if (wallet.primary) {
+      for (const existing of db.wallets) {
+        if (existing.userId === user.id && existing.id !== wallet.id) existing.primary = false
+      }
+    }
     if (index >= 0) db.wallets[index] = wallet
     else db.wallets.push(wallet)
     writeDb(db)

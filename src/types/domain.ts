@@ -60,6 +60,8 @@ export interface Wallet {
   userId: string
   label: string
   nickname: string
+  profileName?: string
+  secondary?: string
   address: string
   network: Network
   type: 'MetaMask' | 'WalletConnect' | 'Coinbase Wallet'
