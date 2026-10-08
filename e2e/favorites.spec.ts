@@ -24,7 +24,13 @@ test('favoritos no catálogo persistem após recarregar a página', async ({ pag
 
   const card = page.locator('article').filter({ hasText: 'Emerald Ape #042' }).first()
   await expect(card.getByRole('button', { name: 'Remover dos favoritos' })).toBeVisible()
+  const removalSaved = page.waitForResponse((response) =>
+    response.url().includes('/api/favorites/042') &&
+    response.request().method() === 'DELETE' &&
+    response.status() === 204,
+  )
   await card.getByRole('button', { name: 'Remover dos favoritos' }).click()
+  await removalSaved
   await expect(card.getByRole('button', { name: 'Adicionar aos favoritos' })).toBeVisible()
   await page.reload()
   await expect(card.getByRole('button', { name: 'Adicionar aos favoritos' })).toBeVisible()
