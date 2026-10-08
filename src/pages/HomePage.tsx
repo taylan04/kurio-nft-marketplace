@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useSearch } from '@tanstack/react-router'
 import { ArrowRight, ChevronRight, Settings2 } from 'lucide-react'
 import { AppShell } from '@/components/layout/AppShell'
@@ -34,6 +34,9 @@ export function HomePage() {
   )
   const nfts = useNfts(search)
   const [draftQuery, setDraftQuery] = useState(search.q || '')
+
+  // URL is the source of truth, including refresh and browser back/forward.
+  useEffect(() => setDraftQuery(search.q || ''), [search.q])
 
   const updateSearch = (patch: Partial<CatalogSearch>, resetPage = true) =>
     navigate({
@@ -101,14 +104,23 @@ export function HomePage() {
           <div>
             {/* abas + ordenação */}
             <div className="mb-4 flex flex-col justify-between gap-4 md:mb-7 lg:flex-row lg:items-start">
-              <div className="flex gap-4 overflow-auto text-sm md:gap-[21px] md:text-[15px]">
-                <button className="whitespace-nowrap border-b-2 border-accent pb-2 font-bold text-accent-light md:pb-0 md:font-medium md:leading-5">
-                  Todos os NFTs
-                </button>
-                <button className="whitespace-nowrap pb-2 md:pb-0 md:font-medium md:leading-5">
-                  Novos lançamentos
-                </button>
-                <button className="whitespace-nowrap pb-2 md:pb-0 md:font-medium md:leading-5">Em alta</button>
+              <div className="flex gap-4 overflow-auto text-sm md:gap-[21px] md:text-[15px]" aria-label="Visões do catálogo">
+                {([
+                  ['all', 'Todos os NFTs', 'recent'],
+                  ['new', 'Novos lançamentos', 'recent'],
+                  ['trending', 'Em alta', 'popular'],
+                ] as const).map(([tab, label, sort]) => {
+                  const selected = (search.tab || 'all') === tab
+                  return (
+                    <button key={tab} type="button" aria-pressed={selected}
+                      onClick={() => updateSearch(tab === 'all'
+                        ? { tab: 'all', sort, category: undefined, network: '', q: undefined, minPrice: undefined, maxPrice: undefined }
+                        : { tab, sort })}
+                      className={`whitespace-nowrap pb-2 md:pb-0 md:font-medium md:leading-5 ${selected ? 'border-b-2 border-accent font-bold text-accent-light' : ''}`}>
+                      {label}
+                    </button>
+                  )
+                })}
               </div>
 
               {/* ordenação: não existe no frame mobile */}
@@ -117,7 +129,7 @@ export function HomePage() {
                 <Select
                   value={search.sort || 'recent'}
                   onValueChange={(value) =>
-                    updateSearch({ sort: value as CatalogSearch['sort'] })
+                    updateSearch({ sort: value as CatalogSearch['sort'], tab: value === 'popular' ? 'trending' : value === 'recent' ? 'new' : 'all' })
                   }
                 >
                   <SelectTrigger aria-labelledby="sort-label" className="h-5 w-auto gap-1 border-0 px-0 pl-0.5 text-[15px] focus:ring-0 focus-visible:ring-1">

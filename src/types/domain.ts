@@ -23,6 +23,7 @@ export interface NFT {
 }
 
 export interface CatalogSearch {
+  tab?: 'all' | 'new' | 'trending'
   q?: string
   category?: string
   network?: Network | ''

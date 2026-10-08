@@ -19,7 +19,7 @@ test('catálogo mantém busca na URL e abre detalhe', async ({ page }) => {
 test('login recupera sessão simulada', async ({ page }) => {
   await page.goto('/login')
   await page.getByLabel('E-mail').fill('collector@kurio.test')
-  await page.getByLabel('Senha').fill('12345678')
+  await page.getByLabel('Senha', { exact: true }).fill('12345678')
   await page.getByRole('button', { name: 'Entrar', exact: true }).click()
   await expect(page).toHaveURL(/\/$/)
 })

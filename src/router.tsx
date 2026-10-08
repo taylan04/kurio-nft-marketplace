@@ -17,6 +17,7 @@ const rootRoute = createRootRoute({ component: () => <Outlet/>, notFoundComponen
 function parseCatalogSearch(search: Record<string, unknown>): CatalogSearch {
   const page = Number(search.page || 1)
   return {
+    tab: ['all', 'new', 'trending'].includes(String(search.tab)) ? search.tab as CatalogSearch['tab'] : undefined,
     q: typeof search.q === 'string' && search.q ? search.q : undefined,
     category: typeof search.category === 'string' && search.category ? search.category : undefined,
     network: typeof search.network === 'string' ? search.network as CatalogSearch['network'] : '',
