@@ -214,6 +214,24 @@ export function CheckoutPage() {
       <h2 className="mt-[13px] text-[15px] font-bold leading-5">Carteira e rede</h2>
       <div className="mt-4"><WalletSelector variant="mobile" value={wallet} onChange={setWallet} /></div>
 
+      {/* Review remains available on mobile without changing the Figma's compact checkout. */}
+      <details className="mt-4 rounded-xl bg-panel px-4 py-3">
+        <summary className="cursor-pointer text-sm font-bold text-accent-light focus-visible:outline-2 focus-visible:outline-accent">
+          Revisar itens do pedido ({data.lines.length})
+        </summary>
+        <ul className="mt-3 space-y-3">
+          {data.lines.map((line) => (
+            <li key={`${line.nftId}-${line.edition}`} className="flex items-start justify-between gap-3 border-t border-border pt-3 text-sm">
+              <span className="min-w-0 flex-1">
+                <span className="block font-bold">{line.nft.name}</span>
+                <span className="text-muted">Edição: {line.edition} · Quantidade: {line.quantity}</span>
+              </span>
+              <span className="shrink-0 font-bold text-accent-light">{formatEth(line.lineTotalEth)}</span>
+            </li>
+          ))}
+        </ul>
+      </details>
+
       <p className="mt-[17px] flex items-baseline justify-end gap-[27px] font-bold">
         <span className="text-[15px]">Total:</span>
         <span className="text-[17px] text-accent-light">{formatEth(data.quote.totalEth)}</span>
