@@ -32,7 +32,7 @@ export function OrderReceipt({ order }: { order: Order }) {
 
       <div className="flex flex-col items-center px-6 pt-[22px] text-center">
         <ThankYouIcon size={80} className="text-accent" />
-        <h1 id="receipt-title" role="status" className="mt-4 text-[15px] font-bold leading-5">{title[order.status]}</h1>
+        <h1 id="receipt-title" aria-live="polite" className="mt-4 text-[15px] font-bold leading-5">{title[order.status]}</h1>
       </div>
 
       <dl className="mt-[20px] grid grid-cols-2 gap-y-3 border-y border-accent px-4 py-[13px] text-[13px] leading-[19px] sm:grid-cols-4 sm:gap-y-0 sm:pl-9 sm:pr-4">
