@@ -12,17 +12,26 @@ async function simulate(page: import('@playwright/test').Page, path: string, dat
   }, { path, data })
 }
 
+// Iniciamos o worker antes da navegação direta para reduzir variações do
+// primeiro registro do service worker entre os dois workers do Playwright.
+test.beforeEach(async ({ page }) => {
+  await page.goto('/')
+  await page.evaluate(() => localStorage.clear())
+  await page.reload()
+  await expect(page.getByRole('status')).toContainText('Tempo real conectado', { timeout: 15_000 })
+})
+
 test('Socket.IO updates NFT details and ignores old events', async ({ page }) => {
   await page.goto('/nft/042')
-  await expect(page.getByRole('heading', { name: 'Emerald Ape #042' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Emerald Ape #042' })).toBeVisible({ timeout: 15_000 })
   await expect(page.getByText('1.19 ETH').first()).toBeVisible()
 
   await simulate(page, '/api/mock/nft-update', { nftId: '042', priceEth: '1.79' })
-  await expect(page.getByText('1.79 ETH').first()).toBeVisible()
+  await expect(page.getByText('1.79 ETH').first()).toBeVisible({ timeout: 10_000 })
 
   // The old version travels through MSW's Socket.IO handler, not a UI setter.
   await simulate(page, '/api/mock/replay-old-nft', { nftId: '042' })
-  await expect(page.getByText('1.79 ETH').first()).toBeVisible()
+  await expect(page.getByText('1.79 ETH').first()).toBeVisible({ timeout: 10_000 })
 })
 
 test('cart recalculates the REST quote when a price changes', async ({ page }) => {
@@ -31,7 +40,8 @@ test('cart recalculates the REST quote when a price changes', async ({ page }) =
   await expect(page).toHaveURL(/\/cart/)
   await expect(page.getByText('Emerald Ape #042').first()).toBeVisible()
   await simulate(page, '/api/mock/nft-update', { nftId: '042', priceEth: '1.79' })
-  await expect(page.getByText('1.79 ETH').first()).toBeVisible()
+  await expect(page.getByText('1.79 ETH').first()).toBeVisible({ timeout: 10_000 })
+  await expect(page.getByText('1.806 ETH').first()).toBeVisible({ timeout: 10_000 })
   await page.reload()
-  await expect(page.getByText('1.79 ETH').first()).toBeVisible()
+  await expect(page.getByText('1.79 ETH').first()).toBeVisible({ timeout: 10_000 })
 })

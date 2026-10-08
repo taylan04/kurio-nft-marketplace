@@ -82,14 +82,27 @@ export function useRealtime() {
       if (userId) void queryClient.invalidateQueries({ queryKey: ['order'], refetchType: 'active' })
     }
 
+    const onConnect = () => {
+      // A conexão deve estar pronta antes de disparar cenários de tempo real.
+      // Isso também dá feedback acessível para quem perdeu a conexão.
+      setAnnouncement('Tempo real conectado. Atualizações sincronizadas.')
+      reconcile()
+    }
+    const onDisconnect = () => setAnnouncement('Tempo real desconectado. Tentando reconectar.')
+    const onConnectError = () => setAnnouncement('Não foi possível conectar ao tempo real. Tentando novamente.')
+
     socket.on('nft.updated', onNft)
     socket.on('order.updated', onOrder)
-    socket.on('connect', reconcile)
+    socket.on('connect', onConnect)
+    socket.on('disconnect', onDisconnect)
+    socket.on('connect_error', onConnectError)
 
     return () => {
       socket.off('nft.updated', onNft)
       socket.off('order.updated', onOrder)
-      socket.off('connect', reconcile)
+      socket.off('connect', onConnect)
+      socket.off('disconnect', onDisconnect)
+      socket.off('connect_error', onConnectError)
       socket.disconnect()
     }
   }, [queryClient, userId])
