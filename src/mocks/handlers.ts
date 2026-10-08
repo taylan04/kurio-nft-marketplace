@@ -360,7 +360,10 @@ export const handlers = [
     // O cenário é de uso único para não manter todas as tentativas bloqueadas.
     if (getScenario().timeoutAfterOrderCreation) {
       setScenario({ timeoutAfterOrderCreation: false })
-      await delay(9_000) // timeout do Axios: 8.000 ms
+      // A transação já existe, mas o gateway simulou timeout (HTTP 504).
+      // Sem sucesso HTTP, o cliente mantém a mesma chave para recuperação.
+      await delay(1_200)
+      return error('Tempo limite do gateway: consulte o pedido antes de reenviar.', 504)
     }
 
     return HttpResponse.json(order, { status: 201 })
