@@ -178,12 +178,12 @@ Também seria interessante complementar as medições locais com auditorias dire
 
 As auditorias geraram arquivos JSON e HTML pelo Lighthouse CI, contendo os resultados completos de cada execução.
 
-Os resultados JSON utilizados nesta análise foram organizados em dois arquivos:
+Os relatórios HTML e JSON originais das 12 auditorias estão versionados neste repositório. As medições estão separadas por dispositivo:
 
-- `lighthouse-relatorios.zip` — seis medições mobile, sendo três da página inicial e três da página de detalhes.
-- `lighthouse-desktop.zip` — seis medições desktop, seguindo a mesma divisão.
+- [Relatórios mobile](./lighthouse/mobile/) — três medições da página inicial e três da página de detalhes, com HTML e JSON.
+- [Relatórios desktop](./lighthouse/desktop/) — três medições da página inicial e três da página de detalhes, com HTML e JSON.
 
-Os relatórios originais permitem consultar as métricas, os diagnósticos e as oportunidades de otimização identificadas pelo Lighthouse.
+Os relatórios originais permitem consultar as métricas, os diagnósticos e as oportunidades de otimização identificadas pelo Lighthouse. O índice navegável está disponível em [docs/lighthouse/index.html](./lighthouse/index.html).
 
 Este documento reúne os principais resultados das 12 medições e apresenta minha análise sobre o desempenho atual da aplicação.
 

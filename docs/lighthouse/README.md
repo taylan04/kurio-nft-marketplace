@@ -1,14 +1,28 @@
 # Relatórios Lighthouse — Kurio NFT Marketplace
 
-Esta pasta reúne as evidências das 12 auditorias Lighthouse: 6 mobile e 6 desktop.
+Esta pasta reúne as evidências originais das 12 auditorias Lighthouse realizadas no projeto: seis mobile e seis desktop.
 
-- `index.html`: índice navegável e comparação das medianas.
-- `mobile/`: os seis relatórios mobile, cada um com JSON original e HTML de consulta.
-- `desktop/`: os seis relatórios desktop, cada um com JSON original e HTML de consulta.
+## Organização
 
-**Importante:** os JSONs são os originais e foram preservados sem alteração.
-Os HTMLs aqui fornecidos são visualizações produzidas a partir dos JSONs e **não** os relatórios HTML nativos gerados pelo Lighthouse CI.
+- `index.html`: índice navegável com as medianas e os links dos relatórios.
+- `mobile/`: seis relatórios HTML e seis arquivos JSON originais.
+- `desktop/`: seis relatórios HTML e seis arquivos JSON originais.
 
-Para ter os HTMLs nativos no repositório, copie os arquivos `*.report.html` existentes no computador nas pastas `.lighthouseci` (mobile) e `.lighthouseci-desktop` (desktop).
+## Ambiente de execução
 
-O relatório explicativo fica em `docs/LIGHTHOUSE_RESULTS.md`.
+As auditorias foram realizadas localmente, utilizando o build de produção do Vite, com as APIs simuladas pelo MSW.
+
+Foram executadas três medições para cada página e perfil:
+
+- Página inicial (`/`).
+- Detalhes do NFT (`/nft/042`).
+
+Os arquivos HTML e JSON foram preservados das execuções do Lighthouse CI.
+
+## Resultados e metodologia
+
+As pontuações, medianas, métricas LCP, CLS e TBT, condições de execução e oportunidades de melhoria estão documentadas em:
+
+[Resultados Lighthouse](../LIGHTHOUSE_RESULTS.md)
+
+As medições representam o ambiente local utilizado nos testes, não uma auditoria direta da aplicação publicada na Vercel.
