@@ -13,8 +13,8 @@ Esta base foi montada a partir das telas desktop/mobile fornecidas e do README d
 - **Socket.IO + @mswjs/socket.io-binding**: canal real de Socket.IO interceptado pelo MSW para `nft.updated` e `order.updated`.
 - **Tailwind CSS**: layout responsivo e identidade visual inspirada no Figma.
 - **shadcn/ui**: componentes copiados para `src/components/ui`, baseados em Radix e totalmente customizáveis.
-- **Playwright**: smoke tests em desktop/mobile. Amplie para os 12 cenários do enunciado.
-- **Lighthouse CI**: configuração inicial com as metas do desafio.
+- **Playwright**: testes E2E e de regressao visual em Chromium desktop e mobile, com 46 testes aprovados e oito baselines versionadas.
+- **Lighthouse CI**: auditorias realizadas em desktop e mobile, com tres medicoes por pagina e perfil e relatorios HTML/JSON versionados.
 
 ## Fluxo de dados
 
@@ -73,14 +73,15 @@ A mesma árvore de componentes é reaproveitada. Desktop e mobile mudam principa
 - grids/cards reaproveitados;
 - layouts de carrinho/detalhe/checkout reorganizados no mobile.
 
-## Pontos que ainda devem ser aprofundados antes da entrega final
+## Limitações e pontos para evolução
 
-1. Validar todos os formulários com mensagens específicas e associação `aria-describedby`.
-2. Completar todos os cenários MSW do enunciado (timeout real, expiração temporizada, out-of-order configurável etc.).
-3. Cobrir os 12 cenários Playwright e gerar baselines visuais.
-4. Rodar Lighthouse, salvar HTML/JSON e registrar medianas.
-5. Substituir os SVGs placeholder pelos assets originais do Figma, se disponíveis.
-6. Refinar pixel-perfect comparando 390/768/1440.
+1. Ampliar a cobertura automatizada dos cenários avançados do enunciado, especialmente combinações de falhas de rede, sessão e eventos em tempo real.
+2. Refinar a associação das mensagens de validação aos campos dos formulários onde necessário.
+3. Continuar a comparação visual com o Figma nos tamanhos de 390, 768 e 1440 pixels.
+4. Substituir eventuais assets provisórios pelos originais, caso estejam disponíveis.
+5. Otimizar a performance mobile, cuja mediana no Lighthouse ficou em 86 pontos na página inicial e 88 nos detalhes do NFT, abaixo da meta de 90.
+
+A regressão visual está implementada em `e2e/visual.spec.ts`, com oito capturas de referência versionadas. As auditorias Lighthouse e seus resultados estão documentados em `docs/LIGHTHOUSE_RESULTS.md`.
 
 ## Atualização de tempo real — ciclo de vida e duplicatas
 
@@ -95,6 +96,6 @@ A mesma árvore de componentes é reaproveitada. Desktop e mobile mudam principa
 
 `src/mocks/scenarios.ts` reúne parâmetros de demonstração; `timeoutAfterOrderCreation` é consumido apenas uma vez. Neste cenário, o pedido é persistido no MSW antes da resposta HTTP ser atrasada por 9 segundos (Axios cancela a espera aos 8 segundos). O checkout grava em `localStorage` a chave de idempotência e dados da tentativa. Recarregar o checkout reconsulta `/orders/by-key/:key`, sem emitir novo POST de compra. O cenário também pode ser ativado via painel Mock tools.
 
-Novos testes `e2e/session-cart.spec.ts` e `e2e/order-recovery.spec.ts` cobrem sessão/isolamento, carrinho do visitante e recuperação após timeout. Eles devem ser executados em desktop e mobile antes da entrega; suas aprovações não podem ser presumidas só pelo build.
+Novos testes `e2e/session-cart.spec.ts` e `e2e/order-recovery.spec.ts` cobrem sessão/isolamento, carrinho do visitante e recuperação após timeout. Esses testes foram executados em desktop e mobile como parte da suite final, que terminou com 46 testes aprovados.
 
-**Situação de validação:** a revisão de código e o empacotamento não substituem `npm run build`, Playwright ou Lighthouse no ambiente final. O desafio pede três medições Lighthouse por página e perfil, com mediana e arquivos HTML/JSON. Enquanto elas não forem executadas e versionadas, as metas continuam sem comprovação.
+**Validação final:** o build de produção foi aprovado; o ESLint apresentou zero erros e quatro avisos; o Playwright concluiu 46 de 46 testes; e foram realizadas 12 auditorias Lighthouse, com relatórios versionados. A performance mobile permaneceu abaixo da meta solicitada.

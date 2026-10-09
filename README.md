@@ -260,11 +260,9 @@ Esse cenário pode ser ativado com `timeoutAfterOrderCreation: true` e é consum
 
 ## 7. Testes automatizados
 
-Utilizei Playwright para testar os principais fluxos da aplicação, incluindo autenticação, catálogo, carrinho, pagamento e atualizações em tempo real.
+Utilizei Playwright para testar os principais fluxos da aplicação, incluindo autenticação, catálogo, carrinho, pagamento, atualizações em tempo real e cenários de recuperação de erros.
 
-Os testes também verificam situações de erro e recuperação.
-
-### Instalação do navegador de testes
+### Instalação do navegador
 
 ```bash
 npx playwright install chromium
@@ -273,39 +271,64 @@ npx playwright install chromium
 ### Executar todos os testes
 
 ```bash
-npm run test:e2e
+npx playwright test --workers=1
 ```
 
-### Testes desktop
+### Executar somente desktop
 
 ```bash
-npx playwright test --project=chromium-desktop --workers=2
+npx playwright test --project=chromium-desktop --workers=1
 ```
 
-### Testes mobile
+### Executar somente mobile
 
 ```bash
-npx playwright test --project=chromium-mobile --workers=2
+npx playwright test --project=chromium-mobile --workers=1
 ```
 
 ### Resultados
 
-Na validação realizada durante o desenvolvimento, os 19 testes existentes passaram nos dois perfis:
+Na validação final, executei toda a suíte em Chromium, com 46 testes aprovados:
 
 | Ambiente | Resultado |
 |---|---|
-| Desktop (Chromium) | 19 de 19 testes aprovados |
-| Mobile (Chromium) | 19 de 19 testes aprovados |
+| Desktop | 23 de 23 testes aprovados |
+| Mobile | 23 de 23 testes aprovados |
+| **Total** | **46 de 46 testes aprovados** |
 
-O Playwright utiliza ambientes isolados para os testes, reduzindo a interferência entre diferentes cenários.
+### Regressão visual
 
-Quando um teste falha, são gerados arquivos que ajudam a identificar o problema, incluindo screenshots e traces.
+Também implementei testes de regressão visual para as páginas de início, detalhes do NFT, carrinho e checkout, tanto no desktop quanto no mobile.
 
-Para visualizar o relatório HTML:
+Os testes estão em `e2e/visual.spec.ts`. As oito imagens de referência estão versionadas na pasta `e2e/visual.spec.ts-snapshots/`.
+
+Para comparar as páginas com as imagens de referência:
+
+```bash
+npx playwright test e2e/visual.spec.ts --workers=1
+```
+
+Para gerar novamente as imagens, quando uma alteração visual for intencional:
+
+```bash
+npx playwright test e2e/visual.spec.ts --update-snapshots --workers=1
+```
+
+As imagens foram geradas com Chromium no Windows. A comparação pode apresentar diferenças em outros sistemas operacionais.
+
+Os oito testes de regressão visual passaram tanto na geração das referências quanto na execução posterior de comparação.
+
+### Relatórios e falhas
+
+O Playwright gera um relatório HTML e, em caso de falhas, mantém evidências como capturas de tela e traces.
+
+Para abrir o relatório:
 
 ```bash
 npx playwright show-report
 ```
+
+Os cenários automatizados cobrem os principais fluxos da aplicação, mas não representam cobertura integral de todos os casos avançados descritos no enunciado.
 
 ## 8. Auditorias Lighthouse
 
