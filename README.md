@@ -425,3 +425,5 @@ A utilização do MSW permitiu testar diferentes situações sem depender de um 
 Também utilizei o Lighthouse para identificar pontos positivos e oportunidades de melhoria, principalmente relacionados à performance mobile.
 
 O projeto me permitiu trabalhar com diferentes ferramentas do ecossistema React e aplicar conceitos importantes de desenvolvimento frontend, como gerenciamento de estado assíncrono, integração com APIs, testes e responsividade.
+
+- [Relato pessoal sobre o desenvolvimento e uso de IA](./docs/Relato_Pessoal_Uso_de_IA_Kurio.pdf) — Minha experiência, aprendizados e utilização de ferramentas de inteligência artificial durante o desafio.
